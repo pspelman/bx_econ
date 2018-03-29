@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>Question {{ id }}</title>
+        <style>
+            #wrapper{
+                width: 970px;
+                border-style: solid;
+                border-width: 5px; 
+                background-color: #C4F3FF;
+            }
+            #body{
+                margin-left: 0%;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="body">
+                <h4>{{ price_as_dollar }}</h4>
+                <form action="/question_validate">
+                    <input type="text" name="answer" value="0">
+                    <input type="hidden" name="price_level" id="price_level"><br>
+                    <br>
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
