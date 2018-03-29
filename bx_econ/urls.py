@@ -34,4 +34,5 @@ urlpatterns = [
     url(r'^register/', register_profile, name='register_view'),
     url(r'^update_profile/', update_profile, name='update_view'),
     url(r'^mock/', mock_form, name='mock_form'),
+    url(r'^task/', include('apps.purchase_task.urls')),
 ]

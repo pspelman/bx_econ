@@ -8,8 +8,12 @@ from django.shortcuts import render, redirect
 from forms import *
 
 def mock_form(request):
-    print "at the mock form"
-    return HttpResponse("Placeholder for the form page")
+    context = {
+        'id': '',
+        'price_as_dollar': '$100'
+
+    }
+    return render(request,'dashboard.html', context)
 
 
 
