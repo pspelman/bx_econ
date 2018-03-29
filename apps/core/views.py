@@ -29,7 +29,8 @@ def index(request):
 def home(request):
     print "reached  home view. If they are logged in, show the dashboard"
     # print "logged in as {}".format(request.user.first_name)
-
+    if 'user_id' not in request.session:
+        return redirect ('/')
     context = {
         'greeting_name': request.user.first_name,
     }
@@ -109,9 +110,9 @@ def login_view(request):
     if user_form.is_valid():
         email = user_form.cleaned_data.get('email')
         password = user_form.cleaned_data.get('password')
-        user = authenticate(email=email, password=password, id=user_id)
-        request.session['user_id'] = user_form
-        print "user_id:", request.session['user_id']
+        user = authenticate(email=email, password=password)
+        request.session['user_id'] = user.id
+        print "user_id:", user.id
         print "user:", user
         print "logging in..."
         login(request, user)
