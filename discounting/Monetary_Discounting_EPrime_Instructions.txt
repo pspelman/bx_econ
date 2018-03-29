@@ -1,0 +1,9 @@
+The table, "Time Table" has the delays that are displayed to participants as well as how frequently each delay is shown to the participant.
+
+The table, "GainTrials" has the number of times that type of discounting task should be shown to participants. For the program to run correctly the value in the GainTrails table MUST BE equal to the number of delays times number of exposure to each delay.
+
+The inline code "CalcTrade" is where the adjusting procedure actually occurs. If you change the number of trials a participant experiences at each delay you must change this inline code or the titration will work incorrectly. To edit this code, change the value on line 15 to equal the number of trials at each delay minus 1.
+
+IF YOU CHANGE THE NUMBER OF TRIALS AT EACH DELAY, YOU MUST MANUALLY MAKE BOTH OF THE ABOVE CHANGES OR ELSE THE PROGRAM WILL RUN INCORRECTLY.
+
+The table, "Type selection" contains basic parameters of the trials. The attribute "ValueLaterTrade" is what contains the amount that the participant will be discounting. Currently, it is 100. You can change this value and it should update all the other values automatically.
