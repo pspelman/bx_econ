@@ -4,13 +4,25 @@ from django.contrib import admin
 from django.conf.urls.static import static
 
 
+import views
+
+
 urlpatterns = [
-    url(r'^', include('apps.core.urls')),
-    url(r'^/', include('apps.core.urls')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^login/', login_view, name='login_view'),
-    url(r'^logout/', logout_view, name='logout_view'),
-    url(r'^register/', register_profile, name='register_view'),
-    url(r'^update_profile/', update_profile, name='update_view'),
+    url(r'^', views.mock_form),
+    url(r'^/', views.mock_form),
+    #     # url(r'^register', views.register),
+    # url(r'^login$', views.login),
+    # url(r'^new$', views.register),
+    # # url(r'^buy', views.buy_product),
+    # url(r'success', views.purchase_success),
+    # url(r'start_over', views.clear_order_history),
+    # url(r'^success$', views.submission_success),
+    # url(r'^reset$', views.reset),
+    # url(r'^(?P<item_number>[0-9]+)/$', views.show),
+    # url(r'^(?P<item_number>[0-9]+)/$', views.get_number),
+    # url(r'^(?P<item_number>[0-9]+)/(edit)$', views.edit),
+    # url(r'^(?P<item_number>[0-9]+)/(delete)$', views.delete),
+    # url(r'^(P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', views_month_archive),
+
 
 ]

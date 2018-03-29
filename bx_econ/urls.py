@@ -21,14 +21,17 @@ from django.conf.urls.static import static
 
 from apps.core.views import (
     login_view, logout_view, register_profile, update_profile)
+from apps.purchase_task.views import (mock_form)
+
 
 urlpatterns = [
     url(r'^', include('apps.core.urls')),
     url(r'^/', include('apps.core.urls')),
+    url(r'^/task', include('apps.purchase_task.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^login/', login_view, name='login_view'),
     url(r'^logout/', logout_view, name='logout_view'),
     url(r'^register/', register_profile, name='register_view'),
     url(r'^update_profile/', update_profile, name='update_view'),
-
+    url(r'^mock/', mock_form, name='mock_form'),
 ]
