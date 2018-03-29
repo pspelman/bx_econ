@@ -27,7 +27,7 @@ from apps.purchase_task.views import (mock_form)
 urlpatterns = [
     url(r'^', include('apps.core.urls')),
     url(r'^/', include('apps.core.urls')),
-    url(r'^/task', include('apps.purchase_task.urls')),
+    url(r'^task', include('apps.purchase_task.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^login/', login_view, name='login_view'),
     url(r'^logout/', logout_view, name='logout_view'),
