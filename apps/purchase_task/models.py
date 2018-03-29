@@ -35,4 +35,5 @@ class PurchaseTask(models.Model):
 
 
 class QuantityResponseModel(models.Model):
-    quantity = models.IntegerField(blank=False)
+    quantity = models.IntegerField(blank=True)
+    text_quantity = models.CharField(max_length=255)

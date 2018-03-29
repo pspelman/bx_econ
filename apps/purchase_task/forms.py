@@ -8,6 +8,7 @@ from models import *
 User = get_user_model()
 
 
+
 class TripForm(forms.ModelForm):
     class Meta:
         model = Trip
@@ -46,6 +47,7 @@ class TripForm(forms.ModelForm):
 
 
 class QuantityResponseForm(forms.ModelForm):
+
     class Meta:
         model = QuantityResponseModel
         fields = (
