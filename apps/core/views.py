@@ -69,6 +69,8 @@ def register_profile(request):
         password = user_form.cleaned_data.get('password')
         user.set_password(password)
         user.save()
+        new_user = User.objects.last()
+        request.session['user_id'] = new_user.id
         user.profile.alias = profile_form.cleaned_data.get('alias')
         user.profile.role = profile_form.cleaned_data.get('role')
         user.profile.birth_date = profile_form.cleaned_data.get('birth_date')
@@ -107,7 +109,9 @@ def login_view(request):
     if user_form.is_valid():
         email = user_form.cleaned_data.get('email')
         password = user_form.cleaned_data.get('password')
-        user = authenticate(email=email, password=password)
+        user = authenticate(email=email, password=password, id=user_id)
+        request.session['user_id'] = user_form
+        print "user_id:", request.session['user_id']
         print "user:", user
         print "logging in..."
         login(request, user)
@@ -132,6 +136,7 @@ def update_profile(request):
             messages.success(request, _(
                 'Your profile was successfully updated!'))
             print("successfully submitted the update form")
+            
             return redirect('/')
         else:
             messages.error(request, _('Please correct the error below.'))
