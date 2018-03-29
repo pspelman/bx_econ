@@ -32,3 +32,7 @@ class PriceList(models.Model):
 
 class PurchaseTask(models.Model):
     price_list = models.CharField(max_length=255)
+
+
+class QuantityResponseModel(models.Model):
+    quantity = models.IntegerField(blank=False)

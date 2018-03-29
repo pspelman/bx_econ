@@ -15,13 +15,20 @@
         </style>
     </head>
     <body>
+    <form>
+        {% csrf_token %}
+        {{ task_form.as_ul }}
+    </form>
+
         <div id="wrapper">
             <div id="body">
                 <h4>{{ price_as_dollar }}</h4>
-                <form action="/question_validate">
-                    <input type="text" name="answer" value="0">
-                    <input type="hidden" name="price_level" id="price_level"><br>
+                <form action="/task/question_validate">
+                    <input type="text" name="response">
+{#                    <input type="hidden" name="price_level" id="{{ price_level }}"><br>#}
                     <br>
+{#                    <input type='text' name='product_id' value='1001' />#}
+{#                <input type='submit' value='Buy!' />#}
                     <input type="submit" value="Submit">
                 </form>
             </div>

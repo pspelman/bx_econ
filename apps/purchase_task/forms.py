@@ -43,3 +43,18 @@ class TripForm(forms.ModelForm):
         if end_date < start_date:
             raise forms.ValidationError("End date must be after start date")
         return end_date
+
+
+class QuantityResponseForm(forms.ModelForm):
+    class Meta:
+        model = QuantityResponseModel
+        fields = (
+            'quantity',
+                  )
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity')
+        if not quantity:
+            raise forms.ValidationError("Please enter a quantity")
+
+

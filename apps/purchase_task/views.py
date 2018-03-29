@@ -7,13 +7,41 @@ from django.shortcuts import render, redirect
 
 from forms import *
 
+def question_validate(request):
+    # method to get here will always be POST
+    user_form = request.POST or None
+    for x in user_form:
+        print (x)
+        for y in user_form[x]:
+            print (y, ':', user_form[x][y])
+
+
 def mock_form(request):
+
+    print "reached the form"
+    quantity_response_form = QuantityResponseForm(request.POST or None)
+
+    # user_form = request.POST[''] or None
+    # for x in user_form:
+    #     print x
+    #     for y in user_form[x]:
+    #         print y, ':', user_form[x[y]]
+
+
     context = {
-        'id': '',
-        'price_as_dollar': '$100'
+        'price_level': '1',
+        'price_as_dollar': '$100',
+        'quantity_response_form': quantity_response_form,
 
     }
-    return render(request,'dashboard.html', context)
+
+    if quantity_response_form.is_valid():
+        print "quantity recieved:", quantity_response_form.cleaned_data.get('quantity')
+        #TODO: add the logic to process the response (maybe in this method, maybe in a different method)
+        # COULD add the response to their DB and then continue
+
+
+    return render(request,'question.html', context)
 
 
 

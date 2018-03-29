@@ -36,3 +36,4 @@ urlpatterns = [
     url(r'^mock/', mock_form, name='mock_form'),
     url(r'^task/', include('apps.purchase_task.urls')),
 ]
+

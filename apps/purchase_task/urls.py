@@ -10,6 +10,7 @@ import views
 urlpatterns = [
     url(r'^', views.mock_form),
     url(r'^/', views.mock_form),
+    url(r'^question_validate/', views.mock_form),
     #     # url(r'^register', views.register),
     # url(r'^login$', views.login),
     # url(r'^new$', views.register),
