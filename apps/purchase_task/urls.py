@@ -8,8 +8,8 @@ import views
 
 
 urlpatterns = [
-    url(r'^', views.mock_form),
-    url(r'^/', views.mock_form),
+    url(r'^', views.task_form_view),
+    url(r'^/', views.task_form_view),
     url(r'^question_validate/', views.question_validate),
 
     #     # url(r'^register', views.register),

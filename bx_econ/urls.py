@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 
 from apps.core.views import (
     login_view, logout_view, register_profile, update_profile)
-from apps.purchase_task.views import (mock_form)
+from apps.purchase_task.views import (task_form_view)
 
 
 urlpatterns = [
@@ -40,5 +40,5 @@ urlpatterns = [
 # url(r'^logout/', logout_view, name='logout_view'),
 # url(r'^register/', register_profile, name='register_view'),
 # url(r'^update_profile/', update_profile, name='update_view'),
-# url(r'^mock/', mock_form, name='mock_form'),
+# url(r'^mock/', task_form_view, name='task_form_view'),
 # url(r'^task/', include('apps.purchase_task.urls')),

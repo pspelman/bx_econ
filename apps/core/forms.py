@@ -26,7 +26,7 @@ class ProfileForm(forms.ModelForm):
     def clean_role(self, *args, **kwargs):
         role = self.cleaned_data.get('role')
         if not role:
-            raise form.ValidationError("Please enter a role (e.g., 'researcher' or 'participant')")
+            raise forms.ValidationError("Please enter a role (e.g., 'researcher' or 'participant')")
 
     def clean_birth_date(self, *args, **kwargs):
         birth_date = self.cleaned_data.get('birth_date')

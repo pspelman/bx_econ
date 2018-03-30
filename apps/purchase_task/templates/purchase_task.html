@@ -2,10 +2,13 @@
 
 {% block body %}
         <div class="main_dash">
-            <h2>{{ instructions.instruction_head }}</h2>
+{#            <h1>Greetings {{ greeting_name }}</h1>#}
+            <h2>Dashboard</h2>
             <hr/>
-{#<h1>{{ task.instruction_head }}</h1>#}
+            <br/>
+
             <div class="task_form">
+
                 {% include 'task_question_form.html' %}
             </div>
         </div>

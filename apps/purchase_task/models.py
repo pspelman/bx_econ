@@ -29,11 +29,8 @@ class PriceList(models.Model):
     prices = models.FloatField(null=True)
 
 
-
-class PurchaseTask(models.Model):
-    price_list = models.CharField(max_length=255)
-
-
 class QuantityResponseModel(models.Model):
     quantity = models.IntegerField(blank=True)
     text_quantity = models.CharField(max_length=255)
+
+
