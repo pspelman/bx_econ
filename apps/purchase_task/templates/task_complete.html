@@ -2,3 +2,40 @@
 {% include 'sidebar.html' %}
 <h2>You're all done</h2>
 
+<h3>Raw Data</h3>
+<table class="raw_data">
+    <thead>
+        <th>Item</th>
+        <th>Price</th>
+        <th>Quantity</th>
+    </thead>
+    {% for trial in data %}
+    <tr>
+        <td>{{ trial.0 }}</td>
+        <td>{{ trial.1 }}</td>
+        <td>{{ trial.2 }}</td>
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<h3>Demand Indices</h3>
+<table>
+    <tr>
+        <td>Intensity:</td>
+        <td>{{ indices.intensity }}</td>
+    </tr>
+    <tr>
+        <td>Omax:</td>
+        <td>{{ indices.omax }}</td>
+    </tr>
+    <tr>
+        <td>Pmax:</td>
+        <td>{{ indices.pmax }}</td>
+    </tr>
+    <tr>
+        <td>Breakpoint:</td>
+        <td>{{ indices.breakpoint }}</td>
+    </tr>
+</table>

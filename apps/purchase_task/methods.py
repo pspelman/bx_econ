@@ -46,12 +46,34 @@ def get_trial_numbers(num_trials):
     return trials
 
 
+def initiate_task_session(session, PRICES):
+    print "reached initiate_task_session... checking if new session is needed"
+    # if the session is empty, start a new task
+    if 'initiated' not in session:
+        session.flush()
+        print "initiating NEW session"
+        initiate_new_session_vars(session, PRICES)
+        session['initiated'] = True
+        session.modified = True
+        return
+
+    elif session['initiated'] == False:
+        print "initiated was false, starting new session!"
+        session['initiated'] = True
+        initiate_new_session_vars(session, PRICES)
+        session.modified = True
+        return
+
+    print "unexpected event: something in initiate_task_session went wrong"
+    print "session task status:", session['task_status']
+
+
 def create_task_response_key(num_trials):
     print "creating response key based on number of items to be presented"
     response_key = []
     for i in range(len(num_trials)):
-        response_key.append({
-            i:'',
+        response_key.append(
+            {0: '',
         })
     return response_key
 
@@ -60,28 +82,27 @@ def get_next_unanswered_question(session):
 
     # todo: does current 'next_unanswered_question' have an answer?
     # check the response key against the current next_unanswered question
-
     # if there is NOW a response, then that question is answered, assign the next_unanswered question to the next item
-    print "next unanswered q: ", session['next_unanswered_question']
+    # print "next unanswered q: ", session['next_unanswered_question']
     task_length = len(session['response_key'])
-    answer = '0'
-
+    answer_location = '0'
+    print "current session[response_key][[session[next_unanswered_question]",session['response_key'][session['next_unanswered_question']]
     # if there IS NO answer
-    if session['response_key'][session['next_unanswered_question']][answer] == '':
+    if session['response_key'][session['next_unanswered_question']][answer_location] == '':
         print "question {} has not yet been answered! No changes made".format(session['next_unanswered_question'])
         return session['next_unanswered_question']
 
     # if there IS an answer
-    if session['response_key'][session['next_unanswered_question']][answer] != '':
-        if session['next_unanswered_question'] == task_length:
+    if session['response_key'][session['next_unanswered_question']][answer_location] != '':
+        if session['next_unanswered_question'] == task_length-1:
             print "the last question has been answered. Task is complete"
             session['next_unanswered_question'] = "DONE"
             return "DONE"
         else:
             print "question answered, getting next question"
-            session['next_unanswered_question'] = session['next_unanswered_question'] + 1
+            session['next_unanswered_question'] = int(session['next_unanswered_question'] + 1)
 
-    return "THE NEXT UNANSWERED QUESTION GOES HERE"
+    return "PLACEHOLDER FOR NEXT UNANSWERED QUESTION...YOU SHOULDN'T SEE THIS"
 
 
 
@@ -109,25 +130,25 @@ def initiate_new_session_vars(session, PRICES):
 
     session['response_key'] = []
 
-
-    price_numbers.reverse()
-    price_strings.reverse()
-    trial_numbers.reverse()
+    # USE REVERSE IF POPPING off the end
+    # price_numbers.reverse()
+    # price_strings.reverse()
+    # trial_numbers.reverse()
 
     session['response_key'] = response_key
     session['price_numbers'] = price_numbers
     session['price_strings'] = price_strings
     session['trial_numbers'] = trial_numbers
 
-    print price_numbers
-    print price_strings
-    print trial_numbers
+    print 'price_numbers:', price_numbers
+    print 'price_strings:', price_strings
+    print 'trial_numbers:', trial_numbers
     # instructions flag
     next_trial = []
     next_trial.append('instructions')
     next_trial.extend(trial_numbers)
     next_trial.append('DONE')
-    next_trial.reverse()
+    # next_trial.reverse()
 
     print "next_trial array is constructed:", next_trial
 
@@ -146,7 +167,7 @@ def initiate_new_session_vars(session, PRICES):
     return
 
 
-def get_task_instructions():
+def get_task_instructions(price_string="$"):
     instruction_head = "Instructions"
 
     acute_instructions = ("Imagine that you could drink alcohol RIGHT NOW.\n\n"
@@ -175,7 +196,7 @@ def get_task_instructions():
         'post_instructions': assumption_instructions,
         'how_to_respond_instructions': how_to_respond_instructions,
         'individual_price_level_prompt': individual_price_level_prompt,
-        'individual_price_level':'{} / drink',
+        'individual_price_level': '{} / drink'.format(price_string),
 
         }
 
