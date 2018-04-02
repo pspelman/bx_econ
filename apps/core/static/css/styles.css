@@ -15,10 +15,13 @@
 .container{
     border: 5px solid black;
     width: 970px;
-    background-color: #c4f3ff;
+    background-color: rgba(46, 0, 163, 0.74);
     padding-left:5px;
     padding-right:5px;
     margin: auto;
+    color: #2ef0ff;
+    font-size: 16pt;
+    padding-top: 2%;
 }
 
 /*.sidebar {*/
@@ -46,10 +49,16 @@
     font-size: 8pt;
     position: absolute;
 }
+.sidebar a{
+        color: #6befce;
+
+}
+
+
 
 .scenario_instructions{
     font-size: 16pt;
-
+    width: 100%;
 }
 .sidebar_top{
     padding-top: 1%;
@@ -64,7 +73,7 @@
     width: 75%;
     margin: auto;
     padding-bottom: 4%;
-    padding-left: 1%;
+    /* padding-left: 1%; */
 }
 
 .main_dash {
@@ -74,9 +83,9 @@
     /* padding-left: 2%; */
     /* max-height: 660px; */
     /* overflow-x: hidden; */
-    overflow-y: auto;
+    /* overflow-y: auto; */
     padding-bottom: 5%;
-    margin-left: 20%;
+    margin: auto;
 }
 
 .item_amount_list_item{
@@ -97,4 +106,25 @@
 .errorlist li{
     color: #ff6b31;
     background-color: rgba(255, 0, 0, 0.31);
+}
+
+
+.task_form{
+    width: 90%;
+}
+
+.price_level{
+    margin-left: 4%;
+    font-size: 24pt;
+}
+
+.scenario_instructions h3{
+    margin-left: -.5em;
+
+}
+
+.nav_button{
+    background-color: rgba(1,1,1,.5);
+    color: white;
+    padding: 2%;
 }

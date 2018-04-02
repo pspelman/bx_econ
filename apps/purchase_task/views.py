@@ -10,167 +10,249 @@ from methods import *
 
 from django import template
 
-register = template.Library()
-
-@register.filter(name='replace_linebr')
-def replace_linebr(value):
-    """
-    Replaces all values of line break from the given string with a line space.
-    example call in template:    {{ education_detail.education_details_institution_name|replace_linebr }}
-    """
-    return value.replace("<br />", ' ')
-
-
-
-def question_validate(request):
-    # method to get here will always be POST
-    print "this is the question validate method"
-    return redirect('/mock')
-    user_form = request.POST or None
 
 
 # TODO: add ability to call price_levels file OR add ability for price levels to be specified via the researcher page
-
-
-def get_task_instructions():
-    instruction_head = "Instructions"
-
-    acute_instructions = ("Imagine that you could drink alcohol RIGHT NOW.\n\n"
-                          "How many alcoholic drinks would you consume at the following prices?\n")
-
-    state_based_instructions = "Imagine you're going to go to a bar with friends this Friday night. ... get the rest of those instructions"
-
-    # put together the instructions
-    scenario_instructions = acute_instructions
-    available_amounts_header = "The available drinks are:"
-    drink_amounts_list = ['standard size domestic beer (12 oz.)',
-                            'wine (5 oz.',
-                            'shots of hard liquor (1.5 oz.)',
-                            'mixed drinks containing one shot of liquor',
-                            ]
-    assumption_instructions = "Please assume that you would consume every drink you request; that is, you cannot stockpile drinks for a later date or bring drinks home with you."
-    how_to_respond_instructions = "Please use the number pad to enter numbers"
-
-    instruction_dictionary = {
-        'task_title': instruction_head,
-        'instruction_head': instruction_head,
-        'scenario_instructions': scenario_instructions,
-        'drink_amounts_list': drink_amounts_list,
-        'available_amounts_header': available_amounts_header,
-        'post_instructions': assumption_instructions,
-        'how_to_respond_instructions': how_to_respond_instructions,
-
-
-        }
-
-    return instruction_dictionary
-
-
-
-
 
 
 # price_levels = [0, 5, 10, 25, 50, 75, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500]
 PRICES = [0, 25, 50, 75, 100, 200, 300, 400, 500, 1000]
 
 
-def task_form_view(request):
-    print "reached form view"
 
-    # to delete keys but keep the user logged in
-    for key in request.session.keys():
-        del request.session[key]
-
-    # to start a new session
+def welcome_vew(request):
+    print "reached welcome_view"
+    return render(request, 'welcome.html')
 
 
-    if not 'initiated' in request.session:
-        print "initaite was not in session...initiate session!"
-        request.session.modified = True
-    elif request.session['initiated'] == False:
-        print "initaite was false...initiate session!"
-        request.session.modified = True
+def instructions_view(request):
+    print "reached instructions_view"
+    if 'in_progress' not in request.session:
+        print "needs to start new session...calling initiate_task_session(rq)"
+        initiate_task_session(request)
+    #reqeust.session['in_progress'] WILL be false, so this will display the directions page AS INTENDED
 
-    #     print "initiated was not in session...initiating new session"
-    #     request.session['initiated'] = True
-    #     price_strings_array = get_price_as_dollar_string(PRICES)
-    #     print "original price array", price_strings_array
-    #
-    #     # TODO: put the reversal in a function, it should probably be defaulted to a lowest-to-highest presentation
-    #     price_strings_array.reverse()
-    #     print "Reversed price array", price_strings_array
-    #
-    #     request.session['price_levels'] = price_strings_array
-    #
-    #     current_item_string = price_strings_array.pop()
-    #     print "current item initially set to: ", current_item_string
-    #
-    #     request.session['current_item'] = current_item_string
-    #     # should probably reverse the prices and the POP from the back for each price level
-    #
-    #
-    #
-    #
-    #
-    # #
-    # #
-    # # price_numbers = get_price_as_float(PRICES)
-    # # price_strings = get_price_as_dollar_string(PRICES)
-    # #
-    # # price_dictionary = get_price_dictionary(PRICES)
-    # # print "dictionary: ", price_dictionary
-    # #
-    #
-    # # TODO: when the session runs out of items, set it to false and the page will go to the results or something
-    # if request.session['current_item_string']:
-    #     print "there are more prices"
-
-    #     request.session['next_item'] = 1
-    #
-    #
-    # for price in price_dictionary:
-    #     print price[0]
-
-    # prices dictionary
-    # question text (e.g., $5.00 / drink)
-    # response from the user
-    # current question number
-
-    # TODO: start with the first question_dictionary item
-    # TODO: get the response from the user and save it in session
-    # TODO: move to the NEXT item in the dictionary
-
-    task_instructions = get_task_instructions()
-
-    quantity_response_form = QuantityResponseForm(request.POST or None)
+    if request.session['in_progress']:
+        print "task is already in progress...return to next item"
+        return HttpResponse("task is already in progress. Placeholder to return to next unanswered item: {}".format(get_next_unanswered_question(request.session)))
 
     context = {
-        'heading': "THIS IS THE FORM",
+        'task': get_task_instructions(),
+    }
+    request.session.modified = True
+
+    return render(request, 'instructions.html', context)
+
+
+def initiate_task_session(request):
+    print "reached initiate_task_session... checking if new session is needed"
+    # if the session is empty, start a new task
+    if 'initiated' not in request.session:
+        request.session.flush()
+        print "initiating NEW session"
+        initiate_new_session_vars(request.session, PRICES)
+        request.session['initiated'] = True
+        request.session.modified = True
+        return
+
+    elif request.session['initiated'] == False:
+        print "initiated was false, starting new session!"
+        request.session['initiated'] = True
+        initiate_new_session_vars(request.session, PRICES)
+        request.session.modified = True
+        return
+
+    print "unexpected event: something in initiate_task_session went wrong"
+    print "session task status:", request.session['task_status']
+
+
+
+def task_view(request):
+    #TODO: initiate new session / clear out old session, including set the question list
+
+    print "attempting to set sesion..."
+    initiate_task_session(request)
+    print "session:", request.session
+
+    next_unanswered_question = get_next_unanswered_question(request.session)
+
+    print "trial_number: ", next_unanswered_question
+    if next_unanswered_question == "DONE":
+        print "Task is done...redirect to completion"
+        return HttpResponse("Placeholder for ALL DONE")
+
+    # should probably use get_context or something to assign the context variables and question logic
+    return redirect(instructions_view)
+
+""" this will return the variables to send to the template
+    based on the next question that needs to be answered """
+    
+def get_task_question_context(request):
+    print "next unanswered question: ", get_next_unanswered_question(request.session)
+
+    
+    # TODO: current item number (whether new or resuming)
+
+    # TODO: get the price associated with the current item (string price)
+    quantity_response_form = QuantityResponseForm(request.POST or None)
+    print "quant form set"
+
+    context = {
         'price_level': '1',
         'price_as_dollar': '$100',
         'quantity_response_form': quantity_response_form,
-        'task': task_instructions,
-        # 'TripForm': trip_form,
+        'task': get_task_instructions(),
     }
 
+    # FIXME: the page to render is the
+    return "placeholder for the CONTEXT"
+    pass
+
+
+def begin_task(request):
+    print "reached begin task...test to see if task was already started"
+    if request.session['in_progress']:
+        print " the task was already started, do the code to get the right context vars"
+        context = get_task_question_context(request)
+
+    print "beginning purchase task"
+    request.session['in_progress'] = True
+    request.session.modified = True
+    return redirect(task_view)
+
+
+def render_question_page_view(request):
+    # TODO: determine which question needs to be answered next
+
+    # TODO: prepare the appropriate context variables for the item
+
+    return HttpRequest("this is a placeholder to render a question page")
+
+
+def task_complete_view(request):
+    print "task complete_view reached"
+    return render(request, 'task_complete.html')
+
+
+def task_form_view(request):
+    print "reached form view"
+    quantity_response_form = QuantityResponseForm(request.POST or None)
+    print "quant form set"
+
+
+    if 'initiated' not in request.session:
+        request.session.flush()
+        print "initaite was not in session...initiate session!"
+        initiate_new_session_vars(request.session, PRICES)
+        request.session['initiated'] = True
+        request.session.modified = True
+
+    elif request.session['initiated'] == False:
+        print "initaite was false...initiate session!"
+        request.session['initiated'] = True
+        initiate_new_session_vars(request.session, PRICES)
+        request.session.modified = True
+
+    print "session task status:", request.session['task_status']
+
+    # if i get here without a new session, that means I've started this and went through the directions
+
+    # TODO: make the session info handler NOT inside this class, save a dictionary in session and use that to manage trials
+
+    # TODO: when the session runs out of items, set it to false and the page will go to the results or something
+
+    # FIXME: if request.session[next_trial] == 'instructions' then need to change show_questions in context to False
+
+    task_instructions = get_task_instructions()
+
+    next_trial = request.session['next_trial'][len(request.session['next_trial'])-1]
+    print "session next trial before tests:", next_trial
+
+    if next_trial == 'DONE':
+        print "task finished, redirect to completion"
+        # TODO: store response data
+        return redirect('/completion')
+
+
+    if next_trial == 'instructions':
+        print "the instructions are next up"
+        request.session['manual_trial_number'] = 0
+        show_questions = False
+        # that should make the next item be a trial number
+        test_item = request.session['next_trial'].pop()
+        print "next_trial thing in session", test_item
+
+        context = {
+            'heading': "THIS IS THE FORM",
+            'task': task_instructions,
+            'show_questions': False,
+        }
+        request.session.modified = True
+        return render(request, 'dashboard.html', context)
+
+
+    if request.session['in_progress'] == True:
+        show_questions = True
+
+        next_trial = request.session['next_trial'].pop()
+        current_item_string = request.session['price_strings'].pop()
+        trial_number = request.session['trial_numbers'].pop()
+        price_number = request.session['price_numbers'].pop()
+
+        print "next trial popped was:", next_trial
+        print "current item string:", current_item_string
+        print "current trial number", trial_number
+        request.session.modified = True
+
+        context = {
+            'heading': "THIS IS THE FORM",
+            'price_level': '1',
+            'price_as_dollar': '$100',
+            'quantity_response_form': quantity_response_form,
+            'task': task_instructions,
+            'show_questions': show_questions,
+            }
+
+    elif request.session['in_progress'] == False:
+        print "something went wrong. Starting over. Do not refresh the page"
+
     if quantity_response_form.is_valid():
+
         print "quantity form was valid"
-        quant = quantity_response_form.cleaned_data.get('quantity')
-        print "quantity recieved:", quant
+        response_quant = quantity_response_form.cleaned_data.get('quantity')
+        manual_trial_number = request.session['manual_trial_number']
+        print "Trial number upon submit:", manual_trial_number
+        # save in session
+        prices_as_float = get_price_as_float(PRICES)
+        request.session['response_set']['trial_number'].append(manual_trial_number)
+        request.session['response_set']['item_price'].append(prices_as_float[manual_trial_number])
+        request.session['response_set']['quantity'].append(response_quant)
+        # request.session['response_set']['trial_number'].append(trial_number)
+        # request.session['response_set']['item_price'].append(price_number)
+        # request.session['response_set']['quantity'].append(response_quant)
+        # print "response set", request.session['response_set']['trial_number']
+        print "response set", request.session['response_set']
 
-        return redirect('/task')
+        request.session.modified = True
 
-     # TODO: add the logic to process the response (maybe in this method, maybe in a different method)
-     # COULD add the response to their DB and then continue
+        # print "quantity received:", response_quant
+
+        # TODO: get the response from the user and save it in session with corresponding trial number
+        print "trial number:", trial_number
+        print "response:", response_quant
+        request.session['manual_trial_number'] = request.session['manual_trial_number'] + 1
+        print "new manual trial number:", request.session['manual_trial_number']
+        # return redirect('/')
+
+        current_question = task_instructions['individual_price_level'].format(current_item_string)
+        print "current question:", current_question
+        task_instructions['individual_price_level'] = current_question
 
     return render(request, 'dashboard.html', context)
-    # return render(request, 'question.html', context)
+    return redirect('/')
 
-
-
-
-
-
+# TODO: add the logic to process the response (maybe in this method, maybe in a different method)
+# COULD add the response to their DB and then continue
 
 
 
@@ -202,24 +284,34 @@ def get_omax(consumption_data):
     return omax
 
 
+
 # TODO: calculate Pmax (the FIRST price where Omax was reached
+
 
 
 # TODO: calculate Breakpoint (the FIRST price at which consumption becomes ZERO
 
 
-price_levels_dictionary = {
-    '0': '0.00',
-    '1': '0.02',
-    '2': '0.05',
-}
-
 
 def purchase_task(request):
     pass
+
+
+def logout_view(request):
+    print "reached logout"
+    request.session.flush()
+    request.session.modified = True
+    return redirect('/task')
+
 
 def clear_session(request):
     print "clearing the session data"
     request.session.flush()
     request.session['initiated'] = False
-    return redirect('/')
+    return redirect('/task')
+
+    # to delete keys but keep the user logged in
+    # for key in request.session.keys():
+    #     del request.session[key]
+
+

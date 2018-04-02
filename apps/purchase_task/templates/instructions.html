@@ -1,0 +1,33 @@
+
+{{ value|linebreaks }}
+
+<h1 class="task_instructions_title">{{ task.task_title }}</h1>
+<br/>
+
+<span class="scenario_instructions">
+    {{ task.scenario_instructions|linebreaksbr }}
+</span>
+
+{% if task.drink_amounts_list %}
+
+    <h4>
+    {{ task.available_amounts_header }}
+    </h4>
+        <ul class="item_amount_list">
+        {% for item in task.drink_amounts_list %}
+        <li class="item_amount_list_item">{{ item }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<br/>
+<span class="scenario_instructions">
+{{ task.post_instructions }}
+</span>
+<br/>
+
+<form action="task/begin_task/" method="get">
+    <input type="submit" value="Ready to Proceed" />
+</form>
+
+
+<br/>
