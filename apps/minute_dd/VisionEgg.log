@@ -1,0 +1,68 @@
+2015-06-28 14:17:38,323 (2756) INFO: Script Minute discounting everything.py started Vision Egg 1.2.1 with process id 2756.
+2015-06-28 14:17:38,496 (2756) INFO: Requesting fullscreen 1280 x 800 32 bpp (8 8 8 0 RGBA).
+2015-06-28 14:17:39,082 (2756) INFO: OpenGL 2.1 INTEL-10.6.20, Parallels using Intel Iris OpenGL Engine, Parallels and Intel Inc. (PyOpenGL 2.0.2.01)
+2015-06-28 14:17:39,082 (2756) INFO: Video system reports 32 bpp (5 5 5 1 RGBA).
+2015-06-28 14:19:13,124 (2756) WARNING: Calculated frames per second was 116.315, while the VISIONEGG_MONITOR_REFRESH_HZ variable is 60.0.
+2015-06-28 14:19:13,125 (2756) WARNING: One or more frames took 330.2 msec, which is signficantly longer than the expected inter frame interval of 16.7 msec for your frame rate (60.0 Hz).
+2015-06-28 14:19:13,127 (2756) INFO: 10447 frames were drawn.
+Mean IFI was 8.60 msec (116.31 fps), longest IFI was 330.23 msec.
+histogram:
+  5623                     *                                              
+  4998                     *                                              
+  4374                     *                                              
+  3749                     *                                              
+  3124                     *                                              
+  2499                     *                                              
+  1874                     *                                              
+  1250                     *                                              
+   625                *    *    *    *                                    
+     0                *    *    *    *    *    *    *    *    *    *    * 
+ Time:    0    2    4    6    8   10   12   14   16   18   20   22   24 +(msec)
+Total:      0    0   +++  +++  +++  627  478  301  162   76   42   33  184 
+
+2015-06-28 14:19:14,104 (4852) INFO: Script Minute discounting everything.py started Vision Egg 1.2.1 with process id 4852.
+2015-06-28 14:19:14,200 (4852) INFO: Requesting fullscreen 1280 x 800 32 bpp (8 8 8 0 RGBA).
+2015-06-28 14:19:14,915 (4852) INFO: OpenGL 2.1 INTEL-10.6.20, Parallels using Intel Iris OpenGL Engine, Parallels and Intel Inc. (PyOpenGL 2.0.2.01)
+2015-06-28 14:19:14,917 (4852) INFO: Video system reports 32 bpp (5 5 5 1 RGBA).
+2015-06-28 14:20:04,826 (4852) WARNING: Calculated frames per second was 142.399, while the VISIONEGG_MONITOR_REFRESH_HZ variable is 60.0.
+2015-06-28 14:20:04,829 (4852) INFO: 6456 frames were drawn.
+Mean IFI was 7.02 msec (142.40 fps), longest IFI was 22.62 msec.
+histogram:
+  4191                     *                                              
+  3726                     *                                              
+  3260                     *                                              
+  2794                     *                                              
+  2329                     *                                              
+  1863                     *                                              
+  1397                     *                                              
+   931                     *                                              
+   466                *    *    *                                         
+     0                *    *    *    *    *    *    *    *    *    *      
+ Time:    0    2    4    6    8   10   12   14   16   18   20   22   24 +(msec)
+Total:      0    0   892  +++  611  148   54   50   30   11   1    1    0  
+
+2015-06-28 14:20:05,690 (4892) INFO: Script Minute discounting everything.py started Vision Egg 1.2.1 with process id 4892.
+2015-06-28 14:20:05,799 (4892) INFO: Requesting fullscreen 1280 x 800 32 bpp (8 8 8 0 RGBA).
+2015-06-28 14:20:06,451 (4892) INFO: OpenGL 2.1 INTEL-10.6.20, Parallels using Intel Iris OpenGL Engine, Parallels and Intel Inc. (PyOpenGL 2.0.2.01)
+2015-06-28 14:20:06,453 (4892) INFO: Video system reports 32 bpp (5 5 5 1 RGBA).
+2015-06-28 14:20:37,471 (4892) WARNING: Calculated frames per second was 142.522, while the VISIONEGG_MONITOR_REFRESH_HZ variable is 60.0.
+2015-06-28 14:20:37,473 (4892) INFO: 4132 frames were drawn.
+Mean IFI was 7.02 msec (142.52 fps), longest IFI was 18.77 msec.
+histogram:
+  2879                     *                                              
+  2559                     *                                              
+  2239                     *                                              
+  1919                     *                                              
+  1600                     *                                              
+  1280                     *                                              
+   960                     *                                              
+   640                     *                                              
+   320                *    *    *                                         
+     0                *    *    *    *    *    *    *    *                
+ Time:    0    2    4    6    8   10   12   14   16   18   20   22   24 +(msec)
+Total:      0    0   391  +++  389   99   23   15   13   2    0    0    0  
+
+2015-06-28 14:20:38,440 (4144) INFO: Script Minute discounting everything.py started Vision Egg 1.2.1 with process id 4144.
+2015-06-28 14:20:38,532 (4144) INFO: Requesting fullscreen 1280 x 800 32 bpp (8 8 8 0 RGBA).
+2015-06-28 14:20:39,193 (4144) INFO: OpenGL 2.1 INTEL-10.6.20, Parallels using Intel Iris OpenGL Engine, Parallels and Intel Inc. (PyOpenGL 2.0.2.01)
+2015-06-28 14:20:39,194 (4144) INFO: Video system reports 32 bpp (5 5 5 1 RGBA).

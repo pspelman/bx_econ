@@ -1,0 +1,12 @@
+Date,Time,Commodity,Amount,Task type,Amount sign,Time sign,Zero
+06-28-2015,14:17:38,$,1000.00,Delay disc,Gains,Future,Explicit,Individual
+
+Question,Stim onset,Response time,Amount,Delay,Response [0D;1I],Imm Loc [0L;1R]
+0,0.011863,18.615437,1000.0,3 weeks,0,0
+1,20.653011,28.001421,1000.0,2 years,1,1
+2,29.509406,58.787145,1000.0,4 months,0,0
+3,59.790219,70.842702,1000.0,8 months,0,1
+4,72.844517,89.812935,1000.0,1 year,0,1
+
+k,ED50
+0.001935953,516.5415037
