@@ -1,26 +1,30 @@
+{% extends "base.html" %}
 
-{{ value|linebreaks }}
-<div class="scenario_instructions">
-   <h3>
-       {{ task.individual_price_level_prompt }}
-   </h3> <br/>
-    <span class="price_level">
-    {{ task.individual_price_level }}
-{#    {{ individual_price_level }}#}
-
-    </span>
-</div>
-<br/>
-
-<form name='quantity_response_form' action="/task/process_form" method="POST" enctype="multipart/form-data">
-{% csrf_token %}
-{{ quantity_response_form.as_p }} {{ quantity_response_form.label }}
-<br/>
-    <button type="submit">Next</button>
-{#        <input type="submit" value="next">#}
-</form>
+{% block content %}
 
 
+    {{ value|linebreaks }}
+    <div class="scenario_instructions">
+       <h3>
+           {{ task.individual_price_level_prompt }}
+       </h3> <br/>
+        <span class="price_level">
+        {{ task.individual_price_level }}
+    {#    {{ individual_price_level }}#}
+
+        </span>
+    </div>
+    <br/>
+
+    <form name='quantity_response_form' action="/task/process_form" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ quantity_response_form.as_p }} {{ quantity_response_form.label }}
+    <br/>
+        <button type="submit">Next</button>
+    {#        <input type="submit" value="next">#}
+    </form>
+
+{% endblock %}
 
 
 

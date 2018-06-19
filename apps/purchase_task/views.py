@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 
 from forms import QuantityResponseForm, TripForm
 from methods import *
+import json
+from django.http import JsonResponse
+from django.core.mail import send_mail
 
 from django import template
-
-
 
 # TODO: add ability to call price_levels file OR add ability for price levels to be specified via the researcher page
 
@@ -24,19 +26,20 @@ def welcome_vew(request):
     return render(request, 'welcome.html')
 
 
-
-
-
 def instructions_view(request):
     print "reached instructions_view"
     if 'in_progress' not in request.session:
         print "needs to start new session...calling initiate_task_session(rq)"
         initiate_task_session(request.session, PRICES)
-    #reqeust.session['in_progress'] WILL be false, so this will display the directions page AS INTENDED
+    # reqeust.session['in_progress'] WILL be false, so this will display the directions page AS INTENDED
 
     if request.session['in_progress']:
         print "task is already in progress...return to next item"
-        return redirect('task_view')
+        response_data = {}
+        response_data['result'] = 'error'
+        response_data['message'] = 'Some error message'
+        return JsonResponse({"message": "there is a session in progress. Try logging out."})
+        # return redirect('task_view')
         # return HttpResponse("task is already in progress. Placeholder to return to next unanswered item: {}".format(get_next_unanswered_question(request.session)))
 
     print "not yet in progress...show the instructions!"
@@ -47,14 +50,13 @@ def instructions_view(request):
     return render(request, 'instructions.html', context)
 
 
-
 def task_view(request):
     print "reached task_view"
     next_unanswered_question = get_next_unanswered_question(request.session)
     if next_unanswered_question == "DONE":
         print "Task is done...redirect to completion"
-        return redirect('/task/completion')
 
+        return redirect('/completion')
     print "not done, getting context"
     # if it's not done, show the next question
     context = get_task_question_context(request.session)
@@ -70,6 +72,8 @@ def task_view(request):
 
 """ this will return the variables to send to the template
     based on the next question that needs to be answered """
+
+
 def get_task_question_context(session):
     print "reached get_task_question_context"
     next_unanswered_question = get_next_unanswered_question(session)
@@ -82,7 +86,6 @@ def get_task_question_context(session):
     current_price_text = session['price_strings'][next_unanswered_question]
     print 'current price text:', current_price_text
 
-
     context = {
         'individual_price_level': current_price_text,
         'price_as_dollar': '$100',
@@ -92,19 +95,23 @@ def get_task_question_context(session):
 
     return context
 
+
 def begin_task(request):
     print "reached begin task...test to see if task was already started"
     if request.session['in_progress']:
         print " the task was already started, do the code to get the right context vars"
-        return HttpResponse('placeholder for resuming the task')
+        return JsonResponse({"message": "Placeholder for RESUMING a task already started"})
+        # return HttpResponse('placeholder for resuming the task')
         # context = get_task_question_context(request)
 
-
+    #
     print "Task has not been started. Starting at the beginning!"
     request.session['in_progress'] = True
     request.session.modified = True
     print "redirecting to task view...it should then show questions"
-    return redirect('task_view')
+    # return JsonResponse({"message": "Beginning new purchase task"})
+    return redirect('/task_view')
+
 
 # in_progress redirects here
 def render_question_page_view(request):
@@ -121,20 +128,55 @@ def render_question_page_view(request):
     else:
         return HttpResponse('this is a response')
 
-
-
     print "next unanswered question was NOT done...so getting the next context ready"
 
     return HttpResponse("Placeholder for NEXT question context")
+
+
+def send_results(request):
+    print "trying to send results via email"
+    # print "data: " + request.session
+    print request.session['raw_data']
+    print request.session['final_indices']
+
+    # TODO: Add participant ID
+    # TODO: get researcher email
+    # send_mail(
+    #     'Test results',
+    #     'Here is the message.',
+    #     FROM: 'purcahseTask@philspelman.com',
+    #     TO: ['phil.spelman@gmail.com'],
+    #     fail_silently=False,
+    # )
+    message_data = {"raw_data": request.session['raw_data'], "final_indices": request.session['final_indices']}
+
+    print "getting JSON"
+    result = StringIO.StringIO(make_JSON(message_data))
+
+    print result
+
+    send_mail(
+        'Test results',
+        result.read(),
+        'research@philspelman.com',
+        ['phil_spelman@hotmail.com'],
+        fail_silently=False,
+    )
+
+    return JsonResponse({"message": "trying to send results via email", "raw_data": request.session['raw_data'],
+                         "final_indices": request.session['final_indices']})
+
+
+def make_JSON(object):
+    return JsonResponse(object)
 
 
 def process_form_data(request):
     print "reached process_form_data"
     print "request contents: ", request
     quantity_response_form = QuantityResponseForm(request.POST or None)
-    print "quant form set"
+    # print "quant form set"
     if quantity_response_form.is_valid():
-
         print "quantity form was valid"
         response_quant = quantity_response_form.cleaned_data.get('quantity')
         next_unanswered_question = get_next_unanswered_question(request.session)
@@ -150,8 +192,7 @@ def process_form_data(request):
         print "saved to session: ", request.session['response_key'][next_unanswered_question]['0']
 
         print "trying to redirect to task_view"
-        return redirect('task_view')
-
+        return redirect('/task_view')
 
         print "setting the next_unanswered question... ? NOT SURE IF I DO THIS HERE"
 
@@ -186,12 +227,13 @@ def process_form_data(request):
     return render(request, 'dashboard.html', context)
     return redirect('/')
 
+
 # TODO: add the logic to process the response (maybe in this method, maybe in a different method)
 # COULD add the response to their DB and then continue
 
 
 def process_raw_data(session):
-    print "reached process_raw_data"
+    # print "reached process_raw_data"
 
     response_key = session['response_key']
     print "response_key: ", response_key
@@ -199,10 +241,8 @@ def process_raw_data(session):
     raw_task_tuples = []
     raw_price_and_consumption_only = []
 
-
     price_list = session['price_numbers']
     print "price_list: ", price_list
-
 
     for i in range(len(response_key)):
         raw_price_and_consumption_only.append(
@@ -218,8 +258,6 @@ def process_raw_data(session):
                 price_list[i]: response_key[i]['0']
             }
         )
-
-
 
     print "raw_task_tuples processed... ->", raw_task_tuples
     print "raw_data_dict processed... -> ", raw_data_dict
@@ -243,18 +281,16 @@ def task_complete_view(request):
     omax = "${:.2f}".format((float(demand_indices['omax'])))
     pmax_results = demand_indices['pmax']
 
-    pmax = "${:.2f}".format((float(pmax_results[len(pmax_results)-1][0])))
+    pmax = "${:.2f}".format((float(pmax_results[len(pmax_results) - 1][0])))
 
     breakpoint = "${:.2f}".format((float(demand_indices['breakpoint'])))
-
-
 
     print "omax: {}\npmax: {}".format(omax, pmax)
     print "breakpoint: ", demand_indices['breakpoint']
 
     results_indices = {
         'intensity': demand_indices['intensity'],
-        'omax':omax,
+        'omax': omax,
         'pmax': pmax,
         'breakpoint': breakpoint,
     }
@@ -263,22 +299,25 @@ def task_complete_view(request):
     # TODO: determine the number of reversals in participant data
     # TODO: auto-clean one or two reversals
     # TODO: send clean data to the database
+    request.session['raw_data'] = raw_task_results['raw_tuples']
+    request.session['final_indices'] = results_indices
+    request.session.modified = True
 
     context = {
         'data': raw_task_results['raw_tuples'],
         'indices': results_indices,
 
-
     }
     return render(request, 'task_complete.html', context)
-
 
 
 def logout_view(request):
     print "reached logout"
     request.session.flush()
+    clear_session(request)
     request.session.modified = True
-    return redirect('/task')
+    return redirect('/')
+    # return redirect('/task')
 
 
 def clear_session(request):
@@ -309,12 +348,14 @@ def get_demand_indices(consumption_data):
             pmax.append([trial[0], omax])
             print "new omax:{} at price: {} ".format(omax, trial[0])
 
-    if consumption_data[0][1]>0:
-        #if something was consumed at this price, but NOTHING at the next price, the next price is the breakpoint
-        for i in range(1,len(consumption_data)):
-            print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i],consumption_data[i][1], consumption_data[i-1], consumption_data[i-1][1])
+    if consumption_data[0][1] > 0:
+        # if something was consumed at this price, but NOTHING at the next price, the next price is the breakpoint
+        for i in range(1, len(consumption_data)):
+            print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i], consumption_data[i][1],
+                                                                         consumption_data[i - 1],
+                                                                         consumption_data[i - 1][1])
             if consumption_data[i][1] == 0:
-                if consumption_data[i-1][1] > 0:
+                if consumption_data[i - 1][1] > 0:
                     print "breakpoint reached at price {}".format(consumption_data[i][0])
                     breakpoint = consumption_data[i][0]
         # if breakpoint == 0:
@@ -323,3 +364,38 @@ def get_demand_indices(consumption_data):
     return {'intensity': intensity, 'omax': omax, 'pmax': pmax, 'breakpoint': breakpoint}
 
 
+def task_with_url_params(request, results_email, participant_id='none'):
+    print "arrived at grab data path for grabbing data from URL string"
+    print "got data: {}".format(results_email)
+    print "participant id: {}".format(participant_id)
+
+    # todo: save participant_id in session
+    # todo: save researcher email in session
+    request.session['participant_id'] = participant_id
+    request.session['researcher_email'] = results_email
+    request.session.modified = True
+
+    return redirect("/")
+    # return JsonResponse({"message": "got some email: {} || participant_id: {}".format(results_email, participant_id)})
+
+    # return None
+
+# # def newsletter_signup(request):
+#     form = NewsletterUserSignUpForm(request.POST or None)
+#     if form.is_valid():
+#         instance = form.save(commit=False)
+#         if NewsletterUser.objects.filter(email=instance.email).exists():
+#             message.warning(request,
+#                             'Your email already exists in our database',
+#                             "alert alert-warning alert-dismissible")
+#         else:
+#             instance.save()
+#             messages.success(request,
+#                              'Your email has been submitted to the database',
+#                              "alert alert-success alert-dismissible")
+#             subject = "thank you for joining our newsletter"
+#             from_email = settings.EMAIL_HOST_USER
+#             to_email = [instance.email]
+#             signup_message = """Welcome to Master Code Online Newsletter."""
+#             send_mail(subject=subject, from_email=from_email, recipient_list=to_email, message=signup_message, fail_silently=False)
+#

@@ -1,13 +1,18 @@
-{% extends 'layout.html' %}
-{% block body %}
+{#{% extends 'base.html' %}#}
 
+{% extends "base.html" %}
+{% block content %}
 <h1>Welcome</h1>
 <br/>
 
 {#<form action={% url 'task_view' %}  method="GET" >#}
-<form action={% url 'instructions_view' %}  method="GET" >
+    <h2>Link to Instructions Page
+    <a href="instructions">Instructions</a>
+</h2>
+{#<form action={% url 'instructions_view' %}  method="GET" >#}
 {#{% csrf_token %}#}
-    <input type="submit" class="nav_button" value="Proceed to Instructions and Begin" />
-</form>
-
+{#    <input type="submit" class="nav_button" value="Proceed to Instructions and Begin" />#}
+{#</form>#}
+{#{% block body %}#}
+{##}
 {% endblock %}

@@ -26,13 +26,14 @@ from apps.purchase_task.views import *
 
 
 urlpatterns = [
-    url(r'^$', include('apps.purchase_task.urls')),
-    url(r'^/', include('apps.purchase_task.urls')),
-    url(r'^logout/', include('apps.purchase_task.urls')),
+    # url(r'^logout/', include('apps.purchase_task.urls')),
     url(r'^task/', include('apps.purchase_task.urls')),
-    url(r'^task_view', task_view, name='task_view'),
-    url(r'^instructions_view', instructions_view, name='instructions_view'),
+    # url(r'^task_view', task_view, name='task_view'),
+    # url(r'^instructions_view', instructions_view, name='instructions_view'),
+    # # url(r'^instructions_view/', include('apps.purchase_task.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^$', include('apps.purchase_task.urls')),
+    url(r'^', include('apps.purchase_task.urls')),
 
 ]
 
