@@ -5,8 +5,11 @@
 
 <h2>You're all done</h2><br/>
 {#    <form action="send_results" method="get" onsubmit="return false">#}
-    <form action="send_results" method="get" >
+{#    <form action="send_results" method="get" >#}
+    <form action="make_csv" method="get" >
     <button type="submit" class="btn btn-success col-sm-3">Submit</button>
+    </form>
+</div>
 {#    <input type="submit" class="btn-dark" value="Send Results" />#}
 {#    <button type="button" class="btn btn-primary">Primary</button>#}
 {#    <button class="btn-dark">button</button>#}
@@ -19,46 +22,55 @@
 {#<button type="button" class="btn btn-dark">Dark</button>#}
 {##}
 
-</form>
+    <div class="col-md-10">
+        <h3>Start timestamp: {{ start_timestamp }}</h3>
+        <h3>End timestamp: {{ end_timestamp }}</h3>
+        <h3>Researcher email: {{ researcher_email }}</h3>
+        <h3>Participant ID: {{ participant_id }}</h3>
+        <br/>
+        <h3>Raw Data</h3>
+        <table class="raw_data">
+            <thead>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Quantity</th>
+            </thead>
+            {% for trial in data %}
+            <tr>
+                <td>{{ trial.0 }}</td>
+                <td>{{ trial.1 }}</td>
+                <td>{{ trial.2 }}</td>
+            </tr>
 
+            {% endfor %}
 
-<h3>Raw Data</h3>
-<table class="raw_data">
-    <thead>
-        <th>Item</th>
-        <th>Price</th>
-        <th>Quantity</th>
-    </thead>
-    {% for trial in data %}
-    <tr>
-        <td>{{ trial.0 }}</td>
-        <td>{{ trial.1 }}</td>
-        <td>{{ trial.2 }}</td>
-    </tr>
-
-    {% endfor %}
-
-</table>
-
-<h3>Demand Indices</h3>
-<table>
-    <tr>
-        <td>Intensity:</td>
-        <td>{{ indices.intensity }}</td>
-    </tr>
-    <tr>
-        <td>Omax:</td>
-        <td>{{ indices.omax }}</td>
-    </tr>
-    <tr>
-        <td>Pmax:</td>
-        <td>{{ indices.pmax }}</td>
-    </tr>
-    <tr>
-        <td>Breakpoint:</td>
-        <td>{{ indices.breakpoint }}</td>
-    </tr>
-</table>
+        </table>
+    <br/>
+        <h3>Demand Indices</h3>
+        <table>
+            <tr>
+                <td>Intensity:</td>
+                <td>{{ indices.intensity }}</td>
+            </tr>
+            <tr>
+                <td>Omax:</td>
+                <td>{{ indices.omax }}</td>
+            </tr>
+            <tr>
+                <td>Pmax:</td>
+                <td>{{ indices.pmax }}</td>
+            </tr>
+            <tr>
+                <td>Breakpoint: </td>
+                <td>{{ indices.breakpoint }}</td>
+            </tr>
+        </table>
+                <br/>
+                <br/>
+            <p>
+                *NOTE: Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)
+            </p>
+    </div>
 
         </div>
 

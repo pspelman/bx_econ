@@ -30,7 +30,7 @@ class PriceList(models.Model):
 
 
 class QuantityResponseModel(models.Model):
-    quantity = models.IntegerField(blank=True)
+    quantity = models.IntegerField(blank=False)
     text_quantity = models.CharField(max_length=255)
 
 

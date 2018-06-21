@@ -65,6 +65,11 @@
     margin-bottom: 0;
 }
 
+.sidebar_top{
+    display: inline-block;
+    margin-left: 2rem;
+}
+
 .body_content {
     display: block;
     vertical-align: top;
@@ -114,7 +119,7 @@
 
 .price_level{
     margin-left: 4%;
-    font-size: 24pt;
+    font-size: 3rem;
 }
 
 .scenario_instructions h3{

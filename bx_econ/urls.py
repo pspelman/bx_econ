@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 
 from apps.core.views import (
     login_view, logout_view, register_profile, update_profile)
+from apps.purchase_task import views
 from apps.purchase_task.views import *
 
 
@@ -37,6 +38,8 @@ urlpatterns = [
 
 ]
 
+handler404 = views.error404
+handler500 = views.error404
 
 
 

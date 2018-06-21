@@ -1,8 +1,18 @@
 {% block sidebar %}
-    <div class="sidebar_top">
-{#        Logged in as: {{ request.user.first_name }}#}
-{#        <br/>#}
-        <a href="/">Home</a>
-         || <a href="logout">Logout</a>
-    </div>
+    <nav>
+        <div class="nav_links">
+            <a href="/">Home</a>
+             || <a href="logout">Reset</a>
+            {#        Logged in as: {{ request.user.first_name }}#}
+        </div>
+        <div class="nav_caption">
+            <span class="nav_title">APT <small>BETA</small></span>
+
+        <small id="disclaimer" class="text-muted alert-danger">
+        This task is currently under development. Want to use it? Feel free to try it out. Want a feature? <a
+                href="mailto:phil_spelman@hotmail.com">Contact me</a>.
+        </small>
+        </div>
+
+    </nav>
 {% endblock %}

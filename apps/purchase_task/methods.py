@@ -6,6 +6,7 @@ from django import template
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
 from django.core.validators import RegexValidator
+from django.http import JsonResponse
 from django.utils.translation import gettext as _
 
 register = template.Library()
@@ -131,34 +132,34 @@ def get_trial_numbers(num_trials):
     trials = []
     for i in range(len(num_trials)):
         trials.append(i)
-        # print "trials:", trials
+        # ###123### print "trials:", trials
     return trials
 
 
 def initiate_task_session(session, PRICES):
-    print "reached initiate_task_session... checking if new session is needed"
+    ###123### print "reached initiate_task_session... checking if new session is needed"
     # if the session is empty, start a new task
     if 'initiated' not in session:
         session.flush()
-        print "initiating NEW session"
+        ###123### print "initiating NEW session"
         initiate_new_session_vars(session, PRICES)
         session['initiated'] = True
         session.modified = True
         return
 
     elif session['initiated'] == False:
-        print "initiated was false, starting new session!"
+        ###123### print "initiated was false, starting new session!"
         session['initiated'] = True
         initiate_new_session_vars(session, PRICES)
         session.modified = True
         return
 
-    print "unexpected event: something in initiate_task_session went wrong"
-    print "session task status:", session['task_status']
+    ###123### print "unexpected event: something in initiate_task_session went wrong"
+    ###123### print "session task status:", session['task_status']
 
 
 def create_task_response_key(num_trials):
-    print "creating response key based on number of items to be presented"
+    ###123### print "creating response key based on number of items to be presented"
     response_key = []
     for i in range(len(num_trials)):
         response_key.append(
@@ -171,24 +172,23 @@ def get_next_unanswered_question(session):
     # todo: does current 'next_unanswered_question' have an answer?
     # check the response key against the current next_unanswered question
     # if there is NOW a response, then that question is answered, assign the next_unanswered question to the next item
-    # print "next unanswered q: ", session['next_unanswered_question']
+    # ###123### print "next unanswered q: ", session['next_unanswered_question']
     task_length = len(session['response_key'])
     answer_location = '0'
-    print "current session[response_key][[session[next_unanswered_question]", session['response_key'][
-        session['next_unanswered_question']]
+    ###123### print "current session[response_key][[session[next_unanswered_question]", session['response_key'][session['next_unanswered_question']]
     # if there IS NO answer
     if session['response_key'][session['next_unanswered_question']][answer_location] == '':
-        print "question {} has not yet been answered! No changes made".format(session['next_unanswered_question'])
+        ###123### print "question {} has not yet been answered! No changes made".format(session['next_unanswered_question'])
         return session['next_unanswered_question']
 
     # if there IS an answer
     if session['response_key'][session['next_unanswered_question']][answer_location] != '':
         if session['next_unanswered_question'] == task_length - 1:
-            print "the last question has been answered. Task is complete"
+            ###123### print "the last question has been answered. Task is complete"
             session['next_unanswered_question'] = "DONE"
             return "DONE"
         else:
-            print "question answered, getting next question"
+            ###123### print "question answered, getting next question"
             session['next_unanswered_question'] = int(session['next_unanswered_question'] + 1)
 
     return "PLACEHOLDER FOR NEXT UNANSWERED QUESTION...YOU SHOULDN'T SEE THIS"
@@ -228,9 +228,9 @@ def initiate_new_session_vars(session, PRICES):
     session['price_strings'] = price_strings
     session['trial_numbers'] = trial_numbers
 
-    print 'price_numbers:', price_numbers
-    print 'price_strings:', price_strings
-    # print 'trial_numbers:', trial_numbers
+    ###123### print 'price_numbers:', price_numbers
+    ###123### print 'price_strings:', price_strings
+    # ###123### print 'trial_numbers:', trial_numbers
     # instructions flag
     next_trial = []
     next_trial.append('instructions')
@@ -238,7 +238,7 @@ def initiate_new_session_vars(session, PRICES):
     next_trial.append('DONE')
     # next_trial.reverse()
 
-    print "next_trial array is constructed:", next_trial
+    ###123### print "next_trial array is constructed:", next_trial
 
     session['next_trial'] = next_trial
 
@@ -250,7 +250,7 @@ def initiate_new_session_vars(session, PRICES):
     }
 
     session.modified = True
-    print "session initiated...returning to task_form"
+    ###123### print "session initiated...returning to task_form"
     return
 
 
@@ -288,3 +288,40 @@ def get_task_instructions(price_string="$"):
     }
 
     return task_dictionary
+
+
+def get_demand_indices(consumption_data):
+    # consumption data will be JUST the price and consumption, not the trial (price, quant)
+    ###123### print "reached get_omax"
+    intensity = consumption_data[0][1]
+    ###123### print "intensity: ", intensity
+    omax = 0
+    pmax = []
+    breakpoint = 0
+
+    for trial in consumption_data:
+        ###123### print trial[0] * trial[1]
+        # NOTE: change the logic below to >= for the possibility of multiple pmax values
+        if trial[0] * trial[1] > omax:
+            omax = trial[0] * trial[1]
+            pmax.append([trial[0], omax])
+            ###123### print "new omax:{} at price: {} ".format(omax, trial[0])
+
+    if consumption_data[0][1] > 0:
+        # if something was consumed at this price, but NOTHING at the next price, the next price is the breakpoint
+        for i in range(1, len(consumption_data)):
+            ###123### print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i], consumption_data[i][1],consumption_data[i - 1],consumption_data[i - 1][1])
+            if consumption_data[i][1] == 0:
+                if consumption_data[i - 1][1] > 0:
+                    ###123### print "breakpoint reached at price {}".format(consumption_data[i][0])
+                    breakpoint = consumption_data[i][0]
+        # if breakpoint == 0:
+        #     breakpoint = "no breakpoint"
+
+    return {'intensity': intensity, 'omax': omax, 'pmax': pmax, 'breakpoint': breakpoint}
+
+
+def make_JSON(data):
+    return JsonResponse(data)
+
+

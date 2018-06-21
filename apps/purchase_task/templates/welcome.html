@@ -2,17 +2,53 @@
 
 {% extends "base.html" %}
 {% block content %}
-<h1>Welcome</h1>
-<br/>
+    <div class="offset-sm-1">
+        <div class="col-sm-11">
+            <br/>
+            <h3 class="alert alert-warning">No researcher email or participant_id has been set</h3><br/>
+            <p>To complete the task with NO EMAIL and DEFAULT participant_id (then download as CSV):<br/>
+            <h3><a href="/task/researcher@philspelman.com/99999">TASK AND DOWNLOAD</a></h3>
 
-{#<form action={% url 'task_view' %}  method="GET" >#}
-    <h2>Link to Instructions Page
-    <a href="instructions">Instructions</a>
-</h2>
-{#<form action={% url 'instructions_view' %}  method="GET" >#}
-{#{% csrf_token %}#}
-{#    <input type="submit" class="nav_button" value="Proceed to Instructions and Begin" />#}
-{#</form>#}
-{#{% block body %}#}
-{##}
+
+        <form name='researcher_and_participant_info_form' action="/task/manual_input" method="GET">
+                {#    {% csrf_token %}#}
+            <div class="form-group">
+                <label for="researcher_email">Email address</label>
+                <input type="email"
+                       name="researcher_email"
+                     class="form-control"
+                     id="researcher_email"
+                     ariadescribedby="emailHelp"
+                     placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">
+                    This is where the data will be sent
+                </small>
+            </div>
+            <div class="form-group">
+                <label for="participant_id">Participant ID</label>
+                <input type="number"
+                       name="participant_id"
+                       class="form-control"
+                       id="participant_id"
+                       placeholder="Enter participant_id">
+            </div>
+{#            <div class="checkbox">#}
+{#                <label>#}
+{#                    <input type="checkbox"> Check me out </label>#}
+{#            </div>#}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+            <br>
+            {#    <a href="make_csv">Make CSV</a>#}
+            <br>
+            {#    <h2>Link to Instructions Page#}
+            {#        <a href="instructions">Instructions</a>#}
+            {#    </h2>#}
+            <p>current timestamp: {{ theTime }}</p>
+            </div>
+    </div>
+    <div class="basic">
+    {% include "footer.html" %}
+    </div>
 {% endblock %}
