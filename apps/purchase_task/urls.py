@@ -4,9 +4,9 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
 
+import apt_logic
 import views
-from views import send_results
-
+from data_management import send_results
 
 print "reached purchase_task urls"
 
@@ -37,7 +37,7 @@ urlpatterns = [
     # url(r'^instructions_view', views.instructions_view),
     url(r'^favicon\.ico$', favicon_view),
     url(r'send_results', send_results, name='send_results'),
-    url(r'make_csv', views.make_csv, name='make_csv'),
+    url(r'make_csv', apt_logic.make_csv, name='make_csv'),
     # url(r'^question_validate/', views.question_validate),
 
 ]

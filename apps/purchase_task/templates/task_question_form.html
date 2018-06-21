@@ -16,14 +16,15 @@
     </div>
     <br/>
 
+
     <form name='quantity_response_form' action="/task/process_form" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ quantity_response_form.as_p }} {{ quantity_response_form.label }}
     <br/>
+        <button type="submit" class="btn btn-primary">Next</button>
     {% for error in field.errors %}
     <p>{{ error|escape }}</p>
     {% endfor %}
-        <button type="submit" class="btn btn-primary">Next</button>
 {#            <input type="submit" class="btn-dark" value="Ready to Proceed" />#}
 {#    <button type="button" class="btn btn-primary">Primary</button>#}
 {#    <button class="btn btn-dark">button</button>#}

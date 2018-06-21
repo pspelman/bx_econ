@@ -7,9 +7,8 @@
 {#    <form action="send_results" method="get" onsubmit="return false">#}
 {#    <form action="send_results" method="get" >#}
     <form action="make_csv" method="get" >
-    <button type="submit" class="btn btn-success col-sm-3">Submit</button>
+    <button type="submit" class="btn btn-success col-sm-5 col-md-3">Download CSV</button>
     </form>
-</div>
 {#    <input type="submit" class="btn-dark" value="Send Results" />#}
 {#    <button type="button" class="btn btn-primary">Primary</button>#}
 {#    <button class="btn-dark">button</button>#}
@@ -21,8 +20,14 @@
 {#<button type="button" class="btn btn-light">Light</button>#}
 {#<button type="button" class="btn btn-dark">Dark</button>#}
 {##}
+    <button type="button" onclick="function toggleShowResults() {
+$('#results').toggle();
+    }
+    toggleShowResults()" class="btn btn-success col-sm-5 col-md-4">Show / Hide results</button>
+</div>
+    <br/>
 
-    <div class="col-md-10">
+    <div id='results' class="col-md-10">
         <h3>Start timestamp: {{ start_timestamp }}</h3>
         <h3>End timestamp: {{ end_timestamp }}</h3>
         <h3>Researcher email: {{ researcher_email }}</h3>

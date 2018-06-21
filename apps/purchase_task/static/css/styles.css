@@ -44,6 +44,20 @@ nav > div{
 
 }
 
+.errorlist li {
+    background-color: rgb(248, 215, 218);
+    color: #ff412f;
+    list-style-type: none;
+    width: 20rem;
+    padding: .2rem;
+    -webkit-border-radius: .5rem;
+    -moz-border-radius: .5rem;
+    border-radius: .5rem;
+    text-align: center;
+    margin-left: -2rem;
+
+}
+
 
 /*footer > p{*/
     /*font-size: 14px;*/

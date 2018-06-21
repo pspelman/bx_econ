@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import datetime
-import io
 from time import sleep, time
 
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.template import loader, Context
+from django.template import loader
 
-from forms import QuantityResponseForm, TripForm
+from forms import QuantityResponseForm
 from methods import *
-import json
 from django.http import JsonResponse
-from django.core.mail import send_mail
-
-from django import template
 
 
 ##
@@ -99,7 +91,7 @@ def task_view(request):
         return redirect('/completion')
     ###123### print "not done, getting context"
     # if it's not done, show the next question
-    context = get_task_question_context(request.session)
+    context = get_task_question_context(request)
 
     ###123### print "don't forget to redirect back to the task_view after processing the form"
 
@@ -113,16 +105,16 @@ def task_view(request):
     based on the next question that needs to be answered """
 
 
-def get_task_question_context(session):
+def get_task_question_context(request):
     ###123### print "reached get_task_question_context"
-    next_unanswered_question = get_next_unanswered_question(session)
+    next_unanswered_question = get_next_unanswered_question(request.session)
     ###123### print "next unanswered question: ", next_unanswered_question
 
-    # TODO: get the price associated with the current item (string price)
-    quantity_response_form = QuantityResponseForm(None)
+    # get the price associated with the current item (string price)
+    quantity_response_form = QuantityResponseForm(request.POST or None)
     ###123### print "quant form set"
 
-    current_price_text = session['price_strings'][next_unanswered_question]
+    current_price_text = request.session['price_strings'][next_unanswered_question]
     ###123### print 'current price text:', current_price_text
 
     context = {
@@ -152,85 +144,77 @@ def begin_task(request):
     return redirect('/task_view')
 
 
-# in_progress redirects here
-def render_question_page_view(request):
-    ###123### print "reached render_question_page_view"
-    # TODO: determine which question needs to be answered next
-    next_unanswered_question = get_next_unanswered_question(request.session)
-
-    # TODO: prepare the appropriate context variables for the item
-    ###123### print "next_unanswered_question: ", next_unanswered_question
-
-    if next_unanswered_question == "DONE":
-        ###123### print "Task is done...redirect to completion"
-        return HttpResponse("Placeholder for ALL DONE")
-    else:
-        return HttpResponse('this is a response')
-
-    ###123### print "next unanswered question was NOT done...so getting the next context ready"
-
-    return HttpResponse("Placeholder for NEXT question context")
-
 
 def process_form_data(request):
     print "reached process_form_data"
     ###123### print "request contents: ", request
-    quantity_response_form = QuantityResponseForm(request.POST or None)
-    # ###123### print "quant form set"
-    if quantity_response_form.is_valid():
-        print "quantity form was valid"
-        response_quant = quantity_response_form.cleaned_data.get('quantity')
-        next_unanswered_question = get_next_unanswered_question(request.session)
+    #
+    if request.method == 'POST':
+        quantity_response_form = QuantityResponseForm(request.POST or None)
+        # ###123### print "quant form set"
+        if quantity_response_form.is_valid():
+            print "quantity form was valid"
+            response_quant = quantity_response_form.cleaned_data.get('quantity')
+            next_unanswered_question = get_next_unanswered_question(request.session)
 
-        ###123### print "Trial number upon submit:", next_unanswered_question
-        response = 'placeholder for values from item {} | user submitted {}' \
-                   ' need to save to session'.format(next_unanswered_question, response_quant)
+            ###123### print "Trial number upon submit:", next_unanswered_question
+            response = 'placeholder for values from item {} | user submitted {}' \
+                       ' need to save to session'.format(next_unanswered_question, response_quant)
 
-        ###123### print "saving the response {} to the session for trial {}".format(response_quant, next_unanswered_question)
-        request.session['response_key'][next_unanswered_question]['0'] = response_quant
-        request.session.modified = True
+            ###123### print "saving the response {} to the session for trial {}".format(response_quant, next_unanswered_question)
+            request.session['response_key'][next_unanswered_question]['0'] = response_quant
+            request.session.modified = True
 
-        ###123### print "saved to session: ", request.session['response_key'][next_unanswered_question]['0']
+            ###123### print "saved to session: ", request.session['response_key'][next_unanswered_question]['0']
 
-        ###123### print "trying to redirect to task_view"
-        return redirect('/task_view')
+            ###123### print "trying to redirect to task_view"
+            return redirect('/task_view')
 
+        else:
+            quantity_response_form = QuantityResponseForm(request.POST)
+            print "INVALID entry"
+            context = get_task_question_context(request)
 
-        # FIXME: NEED TO ACCOUNT FOR INVALID FORM DATA
-        print "NEVER GETS HERE"
-        ###123### print "setting the next_unanswered question... ? NOT SURE IF I DO THIS HERE"
+            ###123### print "don't forget to redirect back to the task_view after processing the form"
 
-        return HttpResponse(response)
-
-        # save in session
-        prices_as_float = get_price_as_float(PRICES)
-        request.session['response_set']['trial_number'].append(manual_trial_number)
-        request.session['response_set']['item_price'].append(prices_as_float[manual_trial_number])
-        request.session['response_set']['quantity'].append(response_quant)
-        # request.session['response_set']['trial_number'].append(trial_number)
-        # request.session['response_set']['item_price'].append(price_number)
-        # request.session['response_set']['quantity'].append(response_quant)
-        # ###123### print "response set", request.session['response_set']['trial_number']
-        ###123### print "response set", request.session['response_set']
-
-        request.session.modified = True
-
-        # ###123### print "quantity received:", response_quant
-
-        # TODO: get the response from the user and save it in session with corresponding trial number
-        ###123### print "trial number:", trial_number
-        ###123### print "response:", response_quant
-        request.session['manual_trial_number'] = request.session['manual_trial_number'] + 1
-        ###123### print "new manual trial number:", request.session['manual_trial_number']
-        # return redirect('/')
-
-        current_question = task_instructions['individual_price_level'].format(current_item_string)
-        ###123### print "current question:", current_question
-        task_instructions['individual_price_level'] = current_question
-    #     FIXME: add ELSE if the form data is NOT valid
-
-        return render(request, 'dashboard.html', context)
-    return redirect('/')
+            # return render(request, 'task_question_form.html', {'quantity_response_form': quantity_response_form})
+            return render(request, 'task_question_form.html', context)
+    # return render(request, 'task_question_form.html', context)
+    #     # FIXME: NEED TO ACCOUNT FOR INVALID FORM DATA
+    #     print "NEVER GETS HERE"
+    #     ###123### print "setting the next_unanswered question... ? NOT SURE IF I DO THIS HERE"
+    #
+    #     return HttpResponse(response)
+    #
+    #     # save in session
+    #     prices_as_float = get_price_as_float(PRICES)
+    #     request.session['response_set']['trial_number'].append(manual_trial_number)
+    #     request.session['response_set']['item_price'].append(prices_as_float[manual_trial_number])
+    #     request.session['response_set']['quantity'].append(response_quant)
+    #     # request.session['response_set']['trial_number'].append(trial_number)
+    #     # request.session['response_set']['item_price'].append(price_number)
+    #     # request.session['response_set']['quantity'].append(response_quant)
+    #     # ###123### print "response set", request.session['response_set']['trial_number']
+    #     ###123### print "response set", request.session['response_set']
+    #
+    #     request.session.modified = True
+    #
+    #     # ###123### print "quantity received:", response_quant
+    #
+    #     # TODO: get the response from the user and save it in session with corresponding trial number
+    #     ###123### print "trial number:", trial_number
+    #     ###123### print "response:", response_quant
+    #     request.session['manual_trial_number'] = request.session['manual_trial_number'] + 1
+    #     ###123### print "new manual trial number:", request.session['manual_trial_number']
+    #     # return redirect('/')
+    #
+    #     current_question = task_instructions['individual_price_level'].format(current_item_string)
+    #     ###123### print "current question:", current_question
+    #     task_instructions['individual_price_level'] = current_question
+    # #     FIXME: add ELSE if the form data is NOT valid
+    #
+    #     return render(request, 'dashboard.html', context)
+    # return redirect('/')
 
 
 # TODO: add the logic to process the response (maybe in this method, maybe in a different method)
@@ -364,7 +348,10 @@ def manual_input(request):
     print "reached manual input"
     researcher_email = request.GET['researcher_email']
     participant_id = request.GET['participant_id']
-
+    if researcher_email == "":
+        researcher_email = 'research@philspelman.com'
+    if participant_id == "":
+        participant_id = 'none'
 
     print "researcher_email: {} | participant_id: {}".format(researcher_email, participant_id)
     return begin_task_with_url_params(request, researcher_email, participant_id)
@@ -385,67 +372,22 @@ def begin_task_with_url_params(request, researcher_email='research@philspelman.c
     # return JsonResponse({"message": "got some email: {} || participant_id: {}".format(researcher_email, participant_id)})
 
 
-def send_results(request):
-    ###123### print "trying to send results via email"
-    # ###123### print "data: " + request.session
-    ###123### print request.session['raw_data']
-    ###123### print request.session['final_indices']
+# in_progress redirects here
+def render_question_page_view(request):
+    ###123### print "reached render_question_page_view"
+    # TODO: determine which question needs to be answered next
+    next_unanswered_question = get_next_unanswered_question(request.session)
 
-    participant_id = request.session['participant_id']
-    researcher_email = request.session['researcher_email']
+    # TODO: prepare the appropriate context variables for the item
+    ###123### print "next_unanswered_question: ", next_unanswered_question
 
-    # TODO: Add participant ID
-    ###123### print "participant id: {}".format(participant_id)
-    ###123### print "researcher email : {}".format(researcher_email)
+    if next_unanswered_question == "DONE":
+        ###123### print "Task is done...redirect to completion"
+        return HttpResponse("Placeholder for ALL DONE")
+    else:
+        return HttpResponse('this is a response')
 
-    # TODO: get researcher email
-    # send_mail(
-    #     'Test results',
-    #     'Here is the message.',
-    #     FROM: 'purcahseTask@philspelman.com',
-    #     TO: ['phil.spelman@gmail.com'],
-    #     fail_silently=False,
-    # )
-    task_result_data = {"participant_id": participant_id, "researcher_email": researcher_email,
-                        "raw_data": request.session['raw_data'], "final_indices": request.session['final_indices']}
+    ###123### print "next unanswered question was NOT done...so getting the next context ready"
 
-    ###123### print "getting JSON"
-    result = StringIO.StringIO(make_JSON(task_result_data))
+    return HttpResponse("Placeholder for NEXT question context")
 
-    # todo: Make CSV file
-    ###123### print result.read()
-    # result.read()
-    return JsonResponse({"message": "trying to send results via email", "raw_data": request.session['raw_data'],
-                         "final_indices": request.session['final_indices']})
-
-
-def make_csv(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['participant_id',  "=\"" + request.session['participant_id'] + "\""])
-    writer.writerow(['start_timestamp', request.session['start_timestamp']])
-    writer.writerow(['end_timestamp', request.session['end_timestamp']])
-    writer.writerow(['researcher_email', request.session['researcher_email']])
-    writer.writerow(['Raw Data'])
-    writer.writerow(['item', 'price', 'quantity', '$'])
-
-    raw_data = request.session['raw_data']
-    final_indices = request.session['final_indices']
-
-    for trial in raw_data:
-        writer.writerow([trial[0], trial[1], trial[2], trial[1]*trial[2]])
-
-    writer.writerow(['Demand Indices'])
-    writer.writerow([])
-    writer.writerow(['Intensity', final_indices['intensity']])
-    writer.writerow(['Omax', final_indices['omax']])
-    writer.writerow(['Pmax', final_indices['pmax']])
-    writer.writerow(['Breakpoint', final_indices['breakpoint']])
-
-    writer.writerow([])
-    writer.writerow(['Note:','','Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)'])
-
-    return response

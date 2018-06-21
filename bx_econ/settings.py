@@ -79,7 +79,7 @@ EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
 # ports: 25, 465, or 587
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'AKIAJFJ4STI6HLTN3CRQ'
-EMAIL_HOST_PASSWORD = 'REMOVED FOR COMMIT'
+EMAIL_HOST_PASSWORD = 'Removed for Commit'
 EMAIL_USE_TLS = True
 
 
