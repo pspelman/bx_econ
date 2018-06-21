@@ -1,35 +1,125 @@
-import csv
 
 from django.http import HttpResponse
 
 
-def make_csv(request):
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="apt_results_{}.csv"'.format(request.session['start_timestamp'])
+def process_raw_data(session):
+    # ###123### print "reached process_raw_data"
+    response_key = session['response_key']
+    ###123### print "response_key: ", response_key
+    raw_data_dict = []
+    raw_task_tuples = []
+    raw_price_and_consumption_only = []
 
-    writer = csv.writer(response)
-    writer.writerow(['participant_id',  "=\"" + request.session['participant_id'] + "\""])
-    writer.writerow(['start_timestamp', request.session['start_timestamp']])
-    writer.writerow(['end_timestamp', request.session['end_timestamp']])
-    writer.writerow(['researcher_email', request.session['researcher_email']])
-    writer.writerow(['Raw Data'])
-    writer.writerow(['item', 'price', 'quantity', '$'])
+    price_list = session['price_numbers']
+    ###123### print "price_list: ", price_list
 
-    raw_data = request.session['raw_data']
-    final_indices = request.session['final_indices']
+    for i in range(len(response_key)):
+        raw_price_and_consumption_only.append(
+            (price_list[i], response_key[i]['0'])
+        )
 
-    for trial in raw_data:
-        writer.writerow([trial[0], trial[1], trial[2], trial[1]*trial[2]])
+        raw_task_tuples.append(
+            (i, price_list[i], response_key[i]['0'])
+        )
 
-    writer.writerow(['Demand Indices'])
-    writer.writerow([])
-    writer.writerow(['Intensity', final_indices['intensity']])
-    writer.writerow(['Omax', final_indices['omax']])
-    writer.writerow(['Pmax', final_indices['pmax']])
-    writer.writerow(['Breakpoint', final_indices['breakpoint']])
+        raw_data_dict.append(
+            {
+                price_list[i]: response_key[i]['0']
+            }
+        )
 
-    writer.writerow([])
-    writer.writerow(['Note:','','Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)'])
+    ###123### print "raw_task_tuples processed... ->", raw_task_tuples
+    ###123### print "raw_data_dict processed... -> ", raw_data_dict
+    raw_task_results = {
+        'raw_tuples': raw_task_tuples,
+        'raw_data_dict': raw_data_dict,
+        'raw_price_and_consumption_only': raw_price_and_consumption_only,
+    }
 
-    return response
+    return raw_task_results
+
+def get_results_indices(raw_task_results):
+    raw_price_and_consumption_only = raw_task_results['raw_price_and_consumption_only']
+    ###123### print "raw price and consumption: ", raw_price_and_consumption_only
+
+    demand_indices = get_demand_indices(raw_price_and_consumption_only)
+
+    # Check for meaningful breakpoint, intensity > 0 & breakpoint != 0
+    if demand_indices['intensity'] > 0:
+        if demand_indices['breakpoint'] == 0:
+            ###123### print "there was no breakpoint, they consumed across all prices, make breakpoint NONE"
+            breakpoint = "None. Participant reported consumption at every price"
+        # elif demand_indices['breakpoint'] == "ERROR":
+        #     breakpoint = "ERROR - Inconsistencies in participant data"
+        else:
+            ###123### print "breakpoint is meaningful, send it back as formatted price"
+            breakpoint = "${:.2f}".format((float(demand_indices['breakpoint'])))
+
+        omax = "${:.2f}".format((float(demand_indices['omax'])))
+        pmax_results = demand_indices['pmax']
+
+        pmax = "${:.2f}".format((float(pmax_results[len(pmax_results) - 1][0])))
+    else:
+        ###123### print "Participant reported ZERO consumption"
+        intensity = 0
+        omax = "None"
+        pmax = "None"
+        breakpoint = "None"
+
+    ###123### print "omax: {}\npmax: {}".format(omax, pmax)
+    ###123### print "breakpoint: ", demand_indices['breakpoint']
+
+    print demand_indices['data_warnings']
+
+    results_indices = {
+        'intensity': demand_indices['intensity'],
+        'omax': omax,
+        'pmax': pmax,
+        'breakpoint': breakpoint,
+        'data_warnings': demand_indices['data_warnings'],
+    }
+    return results_indices
+
+
+
+def get_demand_indices(consumption_data):
+    data_warnings = []
+    # consumption data will be JUST the price and consumption, not the trial (price, quant)
+    ###123### print "reached get_omax"
+    intensity = consumption_data[0][1]
+    ###123### print "intensity: ", intensity
+    omax = 0
+    pmax = []
+    breakpoint = 'none'
+    breakpoint_error = False
+
+    # data_warnings.append(
+    #     (len(data_warnings), 'APT_index', 'reason_for_error')
+    # )
+
+    for trial in consumption_data:
+        ###123### print trial[0] * trial[1]
+        # NOTE: change the logic below to >= for the possibility of multiple pmax values
+        if trial[0] * trial[1] > omax:
+            omax = trial[0] * trial[1]
+            pmax.append([trial[0], omax])
+            ###123### print "new omax:{} at price: {} ".format(omax, trial[0])
+
+    if consumption_data[0][1] > 0:
+        # if something was consumed at this price, but NOTHING at the next price, the next price is the breakpoint
+        for i in range(1, len(consumption_data)):
+            ###123### print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i], consumption_data[i][1],consumption_data[i - 1],consumption_data[i - 1][1])
+            if consumption_data[i][1] == 0:
+                if breakpoint != 'none' and not breakpoint_error:
+                    breakpoint_error = True
+                    print "ERROR - the breakpoint is erroneous due to bad participant data"
+                    data_warnings.append(['Breakpoint', 'Inconsistencies in participant data'])
+                elif consumption_data[i - 1][1] > 0:
+                    ###123### print "breakpoint reached at price {}".format(consumption_data[i][0])
+                    # if no breakpoint yet, make one, if there IS a breakpoint
+                    breakpoint = consumption_data[i][0]
+        # if breakpoint == 0:
+        #     breakpoint = "no breakpoint"
+
+    return {'intensity': intensity, 'omax': omax, 'pmax': pmax, 'breakpoint': breakpoint, 'data_warnings': data_warnings}
+

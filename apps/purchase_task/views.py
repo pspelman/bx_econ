@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import loader
 
+from apt_logic import get_results_indices, process_raw_data
 from forms import QuantityResponseForm
 from methods import *
 from django.http import JsonResponse
@@ -29,7 +30,6 @@ def error404(request):
     return HttpResponse(content=response_page.render(context), content_type='text/html; charset=utf-8', status=404)
 
 # TODO: add ability to call price_levels file OR add ability for price levels to be specified via the researcher page
-
 
 # price_levels = [0, 5, 10, 25, 50, 75, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500]
 PRICES = [0, 25, 50, 75, 100, 200, 300, 400, 500, 1000]
@@ -221,42 +221,7 @@ def process_form_data(request):
 # COULD add the response to their DB and then continue
 
 
-def process_raw_data(session):
-    # ###123### print "reached process_raw_data"
 
-    response_key = session['response_key']
-    ###123### print "response_key: ", response_key
-    raw_data_dict = []
-    raw_task_tuples = []
-    raw_price_and_consumption_only = []
-
-    price_list = session['price_numbers']
-    ###123### print "price_list: ", price_list
-
-    for i in range(len(response_key)):
-        raw_price_and_consumption_only.append(
-            (price_list[i], response_key[i]['0'])
-        )
-
-        raw_task_tuples.append(
-            (i, price_list[i], response_key[i]['0'])
-        )
-
-        raw_data_dict.append(
-            {
-                price_list[i]: response_key[i]['0']
-            }
-        )
-
-    ###123### print "raw_task_tuples processed... ->", raw_task_tuples
-    ###123### print "raw_data_dict processed... -> ", raw_data_dict
-    raw_task_results = {
-        'raw_tuples': raw_task_tuples,
-        'raw_data_dict': raw_data_dict,
-        'raw_price_and_consumption_only': raw_price_and_consumption_only,
-    }
-
-    return raw_task_results
 
 
 def task_complete_view(request):
@@ -266,40 +231,8 @@ def task_complete_view(request):
 
     raw_task_results = process_raw_data(request.session)
 
-    raw_price_and_consumption_only = raw_task_results['raw_price_and_consumption_only']
-    ###123### print "raw price and consumption: ", raw_price_and_consumption_only
 
-    demand_indices = get_demand_indices(raw_price_and_consumption_only)
-
-    # Check for meaningful breakpoint, intensity > 0 & breakpoint != 0
-    if demand_indices['intensity'] > 0:
-        if demand_indices['breakpoint'] == 0:
-            ###123### print "there was no breakpoint, they consumed across all prices, make breakpoint NONE"
-            breakpoint = "None. Participant reported consumption at every price"
-        else:
-            ###123### print "breakpoint is meaningful, send it back as formatted price"
-            breakpoint = "${:.2f}".format((float(demand_indices['breakpoint'])))
-
-        omax = "${:.2f}".format((float(demand_indices['omax'])))
-        pmax_results = demand_indices['pmax']
-
-        pmax = "${:.2f}".format((float(pmax_results[len(pmax_results) - 1][0])))
-    else:
-        ###123### print "Participant reported ZERO consumption"
-        intensity = 0
-        omax = "None"
-        pmax = "None"
-        breakpoint = "None"
-
-    ###123### print "omax: {}\npmax: {}".format(omax, pmax)
-    ###123### print "breakpoint: ", demand_indices['breakpoint']
-
-    results_indices = {
-        'intensity': demand_indices['intensity'],
-        'omax': omax,
-        'pmax': pmax,
-        'breakpoint': breakpoint,
-    }
+    results_indices = get_results_indices(raw_task_results)
 
     # TODO: send dirty data to the database
     # TODO: determine the number of reversals in participant data

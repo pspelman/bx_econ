@@ -290,37 +290,6 @@ def get_task_instructions(price_string="$"):
     return task_dictionary
 
 
-def get_demand_indices(consumption_data):
-    # consumption data will be JUST the price and consumption, not the trial (price, quant)
-    ###123### print "reached get_omax"
-    intensity = consumption_data[0][1]
-    ###123### print "intensity: ", intensity
-    omax = 0
-    pmax = []
-    breakpoint = 0
-
-    for trial in consumption_data:
-        ###123### print trial[0] * trial[1]
-        # NOTE: change the logic below to >= for the possibility of multiple pmax values
-        if trial[0] * trial[1] > omax:
-            omax = trial[0] * trial[1]
-            pmax.append([trial[0], omax])
-            ###123### print "new omax:{} at price: {} ".format(omax, trial[0])
-
-    if consumption_data[0][1] > 0:
-        # if something was consumed at this price, but NOTHING at the next price, the next price is the breakpoint
-        for i in range(1, len(consumption_data)):
-            ###123### print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i], consumption_data[i][1],consumption_data[i - 1],consumption_data[i - 1][1])
-            if consumption_data[i][1] == 0:
-                if consumption_data[i - 1][1] > 0:
-                    ###123### print "breakpoint reached at price {}".format(consumption_data[i][0])
-                    breakpoint = consumption_data[i][0]
-        # if breakpoint == 0:
-        #     breakpoint = "no breakpoint"
-
-    return {'intensity': intensity, 'omax': omax, 'pmax': pmax, 'breakpoint': breakpoint}
-
-
 def make_JSON(data):
     return JsonResponse(data)
 

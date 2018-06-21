@@ -69,6 +69,15 @@ $('#results').toggle();
                 <td>Breakpoint: </td>
                 <td>{{ indices.breakpoint }}</td>
             </tr>
+            <tr>
+                <td>Warnings: </td>
+            </tr>
+                {% for warning in indices.data_warnings %}
+            <tr class="alert alert-danger">
+                <td>{{ warning.0 }}:</td>
+                <td>{{ warning.1 }}</td>
+            </tr>
+                {% endfor %}
         </table>
                 <br/>
                 <br/>
