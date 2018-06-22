@@ -26,7 +26,8 @@ SECRET_KEY = '&ac==o5rq6nt-+554bpq*!&xxp^xppxp##1j%m9k#skt)=6ro_'
 # DEBUG = False
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.3','localhost','0.0.0.0', '127.0.0.1','*']
+
 
 
 # Application definition
@@ -79,7 +80,7 @@ EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
 # ports: 25, 465, or 587
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'AKIAJFJ4STI6HLTN3CRQ'
-EMAIL_HOST_PASSWORD = 'Removed for Commit'
+EMAIL_HOST_PASSWORD = 'Removed for commit'
 EMAIL_USE_TLS = True
 
 

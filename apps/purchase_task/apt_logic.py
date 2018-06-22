@@ -1,4 +1,3 @@
-
 from django.http import HttpResponse
 
 
@@ -38,6 +37,7 @@ def process_raw_data(session):
 
     return raw_task_results
 
+
 def get_results_indices(raw_task_results):
     raw_price_and_consumption_only = raw_task_results['raw_price_and_consumption_only']
     ###123### print "raw price and consumption: ", raw_price_and_consumption_only
@@ -47,12 +47,12 @@ def get_results_indices(raw_task_results):
     # Check for meaningful breakpoint, intensity > 0 & breakpoint != 0
     if demand_indices['intensity'] > 0:
         if demand_indices['breakpoint'] == 0:
-            ###123### print "there was no breakpoint, they consumed across all prices, make breakpoint NONE"
+            # there was no breakpoint, they consumed across all prices, make breakpoint NONE
             breakpoint = "None. Participant reported consumption at every price"
         # elif demand_indices['breakpoint'] == "ERROR":
         #     breakpoint = "ERROR - Inconsistencies in participant data"
         else:
-            ###123### print "breakpoint is meaningful, send it back as formatted price"
+            # breakpoint is meaningful, send it back as formatted price
             breakpoint = "${:.2f}".format((float(demand_indices['breakpoint'])))
 
         omax = "${:.2f}".format((float(demand_indices['omax'])))
@@ -60,16 +60,10 @@ def get_results_indices(raw_task_results):
 
         pmax = "${:.2f}".format((float(pmax_results[len(pmax_results) - 1][0])))
     else:
-        ###123### print "Participant reported ZERO consumption"
         intensity = 0
         omax = "None"
         pmax = "None"
         breakpoint = "None"
-
-    ###123### print "omax: {}\npmax: {}".format(omax, pmax)
-    ###123### print "breakpoint: ", demand_indices['breakpoint']
-
-    print demand_indices['data_warnings']
 
     results_indices = {
         'intensity': demand_indices['intensity'],
@@ -81,45 +75,39 @@ def get_results_indices(raw_task_results):
     return results_indices
 
 
-
 def get_demand_indices(consumption_data):
+    current_breakpoint = 'none'
     data_warnings = []
     # consumption data will be JUST the price and consumption, not the trial (price, quant)
-    ###123### print "reached get_omax"
     intensity = consumption_data[0][1]
-    ###123### print "intensity: ", intensity
     omax = 0
     pmax = []
-    breakpoint = 'none'
+    breakpoint = 0
     breakpoint_error = False
 
-    # data_warnings.append(
-    #     (len(data_warnings), 'APT_index', 'reason_for_error')
-    # )
-
     for trial in consumption_data:
-        ###123### print trial[0] * trial[1]
         # NOTE: change the logic below to >= for the possibility of multiple pmax values
+        # quant * price
         if trial[0] * trial[1] > omax:
             omax = trial[0] * trial[1]
             pmax.append([trial[0], omax])
-            ###123### print "new omax:{} at price: {} ".format(omax, trial[0])
 
     if consumption_data[0][1] > 0:
         # if something was consumed at this price, but NOTHING at the next price, the next price is the breakpoint
         for i in range(1, len(consumption_data)):
-            ###123### print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i], consumption_data[i][1],consumption_data[i - 1],consumption_data[i - 1][1])
+            # print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i], consumption_data[i][1],consumption_data[i - 1],consumption_data[i - 1][1])
             if consumption_data[i][1] == 0:
-                if breakpoint != 'none' and not breakpoint_error:
+                if (current_breakpoint != 'none') and (breakpoint_error == False):
                     breakpoint_error = True
-                    print "ERROR - the breakpoint is erroneous due to bad participant data"
+                    # print "ERROR - the breakpoint is erroneous due to bad participant data"
                     data_warnings.append(['Breakpoint', 'Inconsistencies in participant data'])
                 elif consumption_data[i - 1][1] > 0:
-                    ###123### print "breakpoint reached at price {}".format(consumption_data[i][0])
-                    # if no breakpoint yet, make one, if there IS a breakpoint
+                    # if no breakpoint yet, make one
+                    current_breakpoint = True
                     breakpoint = consumption_data[i][0]
-        # if breakpoint == 0:
-        #     breakpoint = "no breakpoint"
+            elif consumption_data[i][1] > 0 and current_breakpoint == True and breakpoint_error != True:
+                breakpoint_error = True
+                data_warnings.append(['Breakpoint', 'Inconsistencies in participant data'])
 
-    return {'intensity': intensity, 'omax': omax, 'pmax': pmax, 'breakpoint': breakpoint, 'data_warnings': data_warnings}
-
+    return {'intensity': intensity, 'omax': omax, 'pmax': pmax, 'breakpoint': breakpoint,
+            'data_warnings': data_warnings}

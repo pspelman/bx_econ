@@ -7,19 +7,9 @@ from methods import make_JSON
 
 
 def send_results(request):
-    ###123### print "trying to send results via email"
-    # ###123### print "data: " + request.session
-    ###123### print request.session['raw_data']
-    ###123### print request.session['final_indices']
-
     participant_id = request.session['participant_id']
     researcher_email = request.session['researcher_email']
 
-    # TODO: Add participant ID
-    ###123### print "participant id: {}".format(participant_id)
-    ###123### print "researcher email : {}".format(researcher_email)
-
-    # TODO: get researcher email
     # send_mail(
     #     'Test results',
     #     'Here is the message.',
@@ -45,8 +35,14 @@ def send_results(request):
 
 def make_csv(request):
     # Create the HttpResponse object with the appropriate CSV header.
+    if request.session['participant_id'] == 'none':
+        file_ending = request.session['start_timestamp']
+    else:
+        file_ending = "participant_id-{}".format(request.session['participant_id'])
+
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="apt_results_{}.csv"'.format(request.session['start_timestamp'])
+    response['Content-Disposition'] = 'attachment; filename="apt_results_{}.csv"'.format(file_ending)
+
 
     writer = csv.writer(response)
     writer.writerow(['participant_id',  "=\"" + request.session['participant_id'] + "\""])
@@ -58,7 +54,7 @@ def make_csv(request):
 
     raw_data = request.session['raw_data']
     final_indices = request.session['final_indices']
-    print "final indices: ", final_indices
+    # print "final indices: ", final_indices
 
     for trial in raw_data:
         writer.writerow([trial[0], trial[1], trial[2], trial[1]*trial[2]])
@@ -70,12 +66,12 @@ def make_csv(request):
     writer.writerow(['Pmax', final_indices['pmax']])
     writer.writerow(['Breakpoint', final_indices['breakpoint']])
     writer.writerow([])
-    writer.writerow(['Warnings:'])
-    for warning in final_indices['data_warnings']:
-        writer.writerow([warning[0], warning[1]])
+    writer.writerow(['','Warnings:'])
+    for warning in final_indices['','data_warnings']:
+        writer.writerow('',[warning[0], warning[1]])
 
     writer.writerow([])
     writer.writerow([])
-    writer.writerow(['Note:','','Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)'])
+    writer.writerow(['','Note:','Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)'])
 
     return response

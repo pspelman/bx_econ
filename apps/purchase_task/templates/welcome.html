@@ -2,11 +2,11 @@
 
 {% extends "base.html" %}
 {% block content %}
-    <div class="offset-sm-1 offset-md-0 ">
-        <div class="col-sm-11">
+    <div class="">
+        <div class="col-sm-12 col-md-10 col-lg-10">
             <br/>
             <h3 class="alert alert-warning">No researcher email or participant_id has been set</h3><br/>
-            <p class="col-sm-8 col-md-12">Press continue to demo the task, or enter an email and/or participant_id.<br/>
+            <p class="col-sm-12 col-md-12">Press continue to demo the task, or enter an email and/or participant_id.<br/>
                 Results will be available for download in CSV format.<br/>
 {#            <h3><a href="/task/researcher@philspelman.com/99999">TASK AND DOWNLOAD</a></h3>#}
 
@@ -46,6 +46,7 @@
             {#        <a href="instructions">Instructions</a>#}
             {#    </h2>#}
             <p>current timestamp (UTC): {{ theTime }}</p>
+            <br/>
             </div>
     </div>
     <div class="basic">

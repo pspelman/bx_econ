@@ -272,7 +272,7 @@ def get_task_instructions(price_string="$"):
                           ]
     assumption_instructions = "Please assume that you would consume every drink you request. \nYou cannot stockpile drinks for a later date or bring drinks home with you."
     how_to_respond_instructions = "Please use the number pad to enter numbers"
-    individual_price_level_prompt = "How many drinks would you have right now if they were"
+    individual_price_level_prompt = "How many drinks would you have right now if they cost"
 
     task_dictionary = {
         'task_title': instruction_head,

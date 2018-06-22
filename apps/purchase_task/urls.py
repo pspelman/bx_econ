@@ -8,7 +8,6 @@ import apt_logic
 import views
 from data_management import send_results, make_csv
 
-print "reached purchase_task urls"
 
 favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
 

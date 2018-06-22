@@ -1,17 +1,18 @@
 {% block sidebar %}
-    <nav>
-        <div class="nav_links">
+    <nav class="col-sm-12">
+        <div class="nav_links col-sm-12">
             <a href="/">Home</a>
              || <a href="logout">Reset</a>
             {#        Logged in as: {{ request.user.first_name }}#}
-        </div>
-        <div class="nav_caption">
             <span class="nav_title">APT <small>BETA</small></span>
-
-        <small id="disclaimer" class="text-muted alert-danger">
-        This task is currently under development. Want to use it? Feel free to try it out. Want a feature? <a
-                href="mailto:phil_spelman@hotmail.com">Contact me</a>.
-        </small>
+        </div>
+        <div class="col-sm-12">
+            <div class="offset-sm-0">
+            <small id="disclaimer" class="text-muted alert-danger">
+                This task is currently under development. Feel free to try it out. Want a feature? <strong>Want to use it in your study?</strong> <a
+                        href="mailto:phil_spelman@hotmail.com">Contact me</a>.
+            </small>
+                </div>
         </div>
 
     </nav>
