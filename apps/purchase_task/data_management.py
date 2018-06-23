@@ -60,22 +60,24 @@ def make_csv(request):
     writer.writerow([''])
     writer.writerow(['Intensity', final_indices['intensity']])
     writer.writerow(['Omax', final_indices['omax']])
-    writer.writerow(['Pmax', final_indices['pmax']])
+    writer.writerow(['Pmax', final_indices['pmax'],'','Note:','Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)'])
     writer.writerow(['Breakpoint', final_indices['breakpoint']])
     writer.writerow([])
-    writer.writerow(['','Warnings:'])
-    for warning in final_indices['data_warnings']:
-        writer.writerow(["", warning[0], warning[1]])
+    if len(final_indices['data_warnings']):
+        writer.writerow(['Warnings:'])
+        for warning in final_indices['data_warnings']:
+            writer.writerow([warning[0], warning[1]])
+    else:
+        writer.writerow(['Warnings:','none'])
+
 
     writer.writerow([''])
+    # writer.writerow(['','Note:','Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)'])
     writer.writerow([''])
-    writer.writerow(['','Note:','Current Pmax value is the FIRST price associated with Omax (i.e., in the event of multiple Omax values, Pmax is the price associated with the first occurence of Omax)'])
     writer.writerow([''])
-
 
     writer.writerow(['Raw Data'])
-    writer.writerow(['item', 'price', 'quantity', '$'])
-
+    writer.writerow(['item', 'price', 'quantity', '$ spent'])
     for trial in raw_data:
         writer.writerow([trial[0], trial[1], trial[2], trial[1]*trial[2]])
     writer.writerow([])
