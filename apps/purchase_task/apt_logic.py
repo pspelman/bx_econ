@@ -76,13 +76,13 @@ def get_results_indices(raw_task_results):
 
 
 def get_demand_indices(consumption_data):
-    current_breakpoint = 'none'
     data_warnings = []
     # consumption data will be JUST the price and consumption, not the trial (price, quant)
     intensity = consumption_data[0][1]
     omax = 0
     pmax = []
     breakpoint = 0
+    breakpoint_isset = False
     breakpoint_error = False
 
     for trial in consumption_data:
@@ -92,22 +92,38 @@ def get_demand_indices(consumption_data):
             omax = trial[0] * trial[1]
             pmax.append([trial[0], omax])
 
-    if consumption_data[0][1] > 0:
-        # if something was consumed at this price, but NOTHING at the next price, the next price is the breakpoint
+
+    # TODO: Data consistency tests - REVERSALS
+
+
+    # Data consistency tests - BREAKPOINT
+        # CASE 1 - consumption @ price level 0 is NONE and then there IS consumption ANYWHERE ELSE (this is also a reversal)
+    if consumption_data[0][1] == 0:
         for i in range(1, len(consumption_data)):
-            # print "consumption {} = {} | and consumption {} = {}".format(consumption_data[i], consumption_data[i][1],consumption_data[i - 1],consumption_data[i - 1][1])
-            if consumption_data[i][1] == 0:
-                if (current_breakpoint != 'none') and (breakpoint_error == False):
-                    breakpoint_error = True
-                    # print "ERROR - the breakpoint is erroneous due to bad participant data"
-                    data_warnings.append(['Breakpoint', 'Inconsistencies in participant data'])
-                elif consumption_data[i - 1][1] > 0:
-                    # if no breakpoint yet, make one
-                    current_breakpoint = True
-                    breakpoint = consumption_data[i][0]
-            elif consumption_data[i][1] > 0 and current_breakpoint == True and breakpoint_error != True:
+            if consumption_data[i][1] > 0:
+                print "line 103 making breakpoint error"
                 breakpoint_error = True
-                data_warnings.append(['Breakpoint', 'Inconsistencies in participant data'])
+                break
+
+
+        # CASE 2 - consumption drops to zero and THEN increases (this is also considered a reversal)
+    if consumption_data[0][1] > 0:
+        # if something was consumed at price[i], but NOTHING at the next price, the next price is the breakpoint
+        for i in range(1, len(consumption_data)):
+            if consumption_data[i][1] > 0 and breakpoint_isset:
+                print "line 112 making breakpoint error"
+                breakpoint_error = True
+                break
+            elif consumption_data[i][1] == 0:
+                if consumption_data[i - 1][1] > 0 and not breakpoint_isset:
+                    # if no breakpoint yet, make one
+                    breakpoint_isset = True
+                    breakpoint = consumption_data[i][0]
+
+            # COULD DECIDE TO BREAK OUT HERE AND SKIP REMAINING DATA, assuming detecting inconsistency doesn't matter
+
+    if breakpoint_error:
+        data_warnings.append(['Breakpoint', 'Inconsistencies in participant data'])
 
     return {'intensity': intensity, 'omax': omax, 'pmax': pmax, 'breakpoint': breakpoint,
             'data_warnings': data_warnings}

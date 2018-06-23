@@ -9,12 +9,13 @@
             <p class="col-sm-12 col-md-12">Press continue to demo the task, or enter an email and/or participant_id.<br/>
                 Results will be available for download in CSV format.<br/>
 {#            <h3><a href="/task/researcher@philspelman.com/99999">TASK AND DOWNLOAD</a></h3>#}
+            </p>
 
 
         <form name='researcher_and_participant_info_form' action="/task/manual_input" method="GET">
                 {#    {% csrf_token %}#}
 
-            <div class="form-group col-md-7 col-sm-8">
+            <div class="form-group col-sm-10 col-md-10 col-lg-10 ">
                 <label for="researcher_email">Email address</label>
                 <input type="email"
                        name="researcher_email"
