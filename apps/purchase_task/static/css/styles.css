@@ -112,11 +112,15 @@ footer {
     border: 2px solid #8c5dff;
     border-radius: .3rem;
     flex: fit-content;
+    flex-direction: column;
+
 }
 .results-left {
     display: inline-block;
     border: 2px solid #494242;
     vertical-align: top;
+    /*border: 1px solid red;*/
+    margin-bottom: 1rem;
     /*margin-left: auto;*/
     /*margin-right: auto;*/
 }
@@ -129,3 +133,11 @@ footer {
     /*margin-left: auto;*/
     /*margin-right: auto;*/
 }
+.results_table{
+    margin:0px !important;
+    table-layout:fixed;
+  }
+.results_table td{
+    padding-bottom: 0px !important;
+    overflow:hidden;
+  }

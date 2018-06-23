@@ -128,8 +128,9 @@ def process_form_data(request):
 # TODO: auto-clean one or two reversals
 # TODO: send clean data to the database
 def task_complete_view(request):
-    end_timestamp = time()
-    request.session['end_timestamp'] = end_timestamp
+    if 'end_timestamp' not in request.session:
+        end_timestamp = time()
+        request.session['end_timestamp'] = end_timestamp
 
     raw_task_results = process_raw_data(request.session)
     results_indices = get_results_indices(raw_task_results)
