@@ -78,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bx_econ.wsgi.application'
 
+SUB_SITE = "/research/"
 
 
 # EMAIL STUFF
